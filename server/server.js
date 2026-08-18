@@ -115,7 +115,10 @@ app.use("/api", (_req, res, next) => {
 });
 
 /* ---------------- Helpers ---------------- */
-function calcShipping(subtotal) {
+function calcShipping(subtotal, couponVal = null) {
+  if (couponVal?.coupon && (couponVal.coupon.type === "shipping" || couponVal.coupon.type === "freeship" || ["FREESHIP", "ZEROSHIP", "TESTSHIP"].includes(couponVal.coupon.code))) {
+    return 0;
+  }
   return subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
 }
 
@@ -217,16 +220,17 @@ app.post("/api/checkout", async (req, res) => {
 
   let discount = 0;
   let appliedCoupon = null;
+  let couponVal = null;
   if (couponCode) {
-    const val = validateCoupon(couponCode, subtotal);
-    if (val.valid) {
-      discount = val.discount;
-      appliedCoupon = val.coupon.code;
+    couponVal = validateCoupon(couponCode, subtotal);
+    if (couponVal.valid) {
+      discount = couponVal.discount;
+      appliedCoupon = couponVal.coupon.code;
     }
   }
 
   const taxableSubtotal = Math.max(0, subtotal - discount);
-  const shipping = calcShipping(taxableSubtotal);
+  const shipping = calcShipping(taxableSubtotal, couponVal);
   const total = Math.max(0, taxableSubtotal + shipping);
 
   const order = {

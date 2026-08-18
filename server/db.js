@@ -8,9 +8,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_FILE = path.join(__dirname, "db.json");
 
 const DEFAULT_COUPONS = [
+  { code: "FREESHIP", type: "shipping", value: 100, minSpend: 0, desc: "100% Free Shipping waiver" },
+  { code: "ZEROSHIP", type: "shipping", value: 100, minSpend: 0, desc: "Free shipping for payment gateway testing" },
   { code: "NOIR10", type: "percent", value: 10, minSpend: 0, desc: "10% off your entire order" },
   { code: "STUDIO20", type: "percent", value: 20, minSpend: 8000, desc: "20% off orders over ₹8,000" },
-  { code: "FREESHIP", type: "shipping", value: 100, minSpend: 0, desc: "Free express shipping" },
 ];
 
 const EMPTY = { orders: [], seq: 1000, newsletter: [], coupons: DEFAULT_COUPONS, reviews: [] };
