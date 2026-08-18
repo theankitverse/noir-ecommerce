@@ -40,7 +40,9 @@ function authOk(token) {
 }
 
 function requireAuth(req, res, next) {
-  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const headerToken = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const queryToken = req.query?.token || "";
+  const token = headerToken || queryToken;
   if (!authOk(token)) {
     return res.status(401).json({ error: "Unauthorized." });
   }

@@ -33,7 +33,11 @@ function load() {
 }
 
 function persist() {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+  } catch (err) {
+    /* Read-only filesystem (e.g. Vercel Serverless) — state is maintained safely in-memory */
+  }
 }
 
 load();

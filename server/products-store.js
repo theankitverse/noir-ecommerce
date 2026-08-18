@@ -25,7 +25,11 @@ function load() {
 let products = load();
 
 function persist() {
-  fs.writeFileSync(FILE, JSON.stringify(products, null, 2));
+  try {
+    fs.writeFileSync(FILE, JSON.stringify(products, null, 2));
+  } catch (err) {
+    /* Read-only filesystem (e.g. Vercel Serverless) — catalog state is maintained safely in-memory */
+  }
 }
 
 const CATS = ["tops", "bottoms", "outerwear", "accessories"];
