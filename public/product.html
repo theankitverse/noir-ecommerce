@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product — NOIR</title>
+  <meta name="description" content="NOIR product detail." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <a class="header__logo" href="index.html" aria-label="NOIR home">
+      <span class="header__logo-serif">N</span>OIR
+    </a>
+    <nav class="header__nav" aria-label="Primary">
+      <a href="index.html#shop" class="header__link">Shop</a>
+      <a href="index.html#manifesto" class="header__link">Manifesto</a>
+      <a href="index.html#journal" class="header__link">Journal</a>
+      <a href="index.html#contact" class="header__link">Contact</a>
+    </nav>
+    <div class="header__actions">
+      <button class="icon-btn" aria-label="Search" id="searchBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn wish-btn" aria-label="Wishlist" id="wishBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S4 15 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5c0 5.5-8 11-8 11Z"/></svg>
+        <span class="wish-btn__count" id="wishCount">0</span>
+      </button>
+      <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+      <button class="header__menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <!-- Mobile menu -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <nav class="menu__links">
+      <a href="index.html#shop">Shop</a>
+      <a href="index.html#manifesto">Manifesto</a>
+      <a href="index.html#journal">Journal</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <p class="menu__foot">© 2026 NOIR Studio — Crafted slowly.</p>
+  </div>
+
+  <!-- Product -->
+  <main class="product" id="productPage">
+    <div class="product__crumbs">
+      <a href="index.html">Home</a><span>/</span><a href="index.html#shop">Shop</a><span>/</span><em id="crumbCat">—</em>
+    </div>
+
+    <div class="product__layout">
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="gallery__main">
+          <img id="galleryMain" src="" alt="Product" />
+          <span class="card__badge" id="galleryBadge" hidden></span>
+        </div>
+        <div class="gallery__thumbs" id="galleryThumbs"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="product__info">
+        <p class="modal__cat" id="pCat">—</p>
+        <h1 class="product__name" id="pName">—</h1>
+        <div class="product__rating">
+          <span class="stars" id="pStars">★★★★★</span>
+          <span id="pRatingMeta">—</span>
+        </div>
+        <p class="product__price" id="pPrice">—</p>
+
+        <p class="product__desc" id="pDesc">—</p>
+
+        <div class="product__block">
+          <span class="modal__label">Colour — <em id="pColorName">—</em></span>
+          <div class="colors" id="pColors"></div>
+        </div>
+
+        <div class="product__block">
+          <span class="modal__label">Size <button class="size-guide" id="sizeGuideBtn">Size guide</button></span>
+          <div class="sizes" id="pSizes"></div>
+        </div>
+
+        <div class="product__buy">
+          <div class="qty" id="pQty">
+            <button data-q="-1" aria-label="Decrease quantity">−</button>
+            <span>1</span>
+            <button data-q="1" aria-label="Increase quantity">+</button>
+          </div>
+          <button class="btn btn--solid product__add" id="addToCart">Add to bag</button>
+          <button class="icon-btn icon-btn--square" id="pWish" aria-label="Save to wishlist">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S4 15 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5c0 5.5-8 11-8 11Z"/></svg>
+          </button>
+        </div>
+
+        <div class="product__trust">
+          <span>✦ Free shipping over ₹10,200</span>
+          <span>✦ Free 30-day returns</span>
+          <span>✦ Secure checkout</span>
+        </div>
+
+        <div class="accordion">
+          <div class="accordion__item">
+            <button class="accordion__head">Details &amp; fit<span>+</span></button>
+            <div class="accordion__body"><p id="pDetails">—</p></div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__head">Fabric &amp; care<span>+</span></button>
+            <div class="accordion__body">
+              <p id="pFabric">—</p>
+              <ul id="pCare"></ul>
+            </div>
+          </div>
+          <div class="accordion__item">
+            <button class="accordion__head">Shipping &amp; returns<span>+</span></button>
+            <div class="accordion__body">
+              <p>Free standard shipping on orders over ₹10,200. ₹680 flat rate otherwise. Free returns within 30 days — no questions, no restocking fees.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related -->
+    <section class="related">
+      <p class="eyebrow">Complete the look</p>
+      <h2 class="related__title">You may also <em>love</em></h2>
+      <div class="grid grid--related" id="relatedGrid"></div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="reviews-section" style="max-width:1400px;margin:3rem auto;padding:3rem 5vw;border-top:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1.5rem;margin-bottom:2rem">
+        <div>
+          <p class="eyebrow">Verified Guest Feedback</p>
+          <h2 class="shop__title">Customer <em>Reviews</em></h2>
+        </div>
+        <button class="btn btn--solid" id="writeReviewBtn">Write a Review</button>
+      </div>
+
+      <!-- Reviews Form Card -->
+      <div class="review-form-card" id="reviewFormCard" style="background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:2rem;margin-bottom:2.5rem" hidden>
+        <h3 style="font-family:var(--font-display);font-size:1.4rem;margin-bottom:1rem">Leave an Atelier Review</h3>
+        <form id="addReviewForm" style="display:grid;gap:1rem;max-width:600px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <input type="text" id="revName" placeholder="Your name (e.g. Sarah M.)" required style="border:1px solid var(--line);border-radius:999px;padding:0.75rem 1.2rem;font:inherit" />
+            <select id="revRating" style="border:1px solid var(--line);border-radius:999px;padding:0.75rem 1.2rem;font:inherit;background:var(--paper)">
+              <option value="5">★★★★★ (5 - Excellent)</option>
+              <option value="4">★★★★☆ (4 - Great)</option>
+              <option value="3">★★★☆☆ (3 - Average)</option>
+              <option value="2">★★☆☆☆ (2 - Below Expectations)</option>
+              <option value="1">★☆☆☆☆ (1 - Poor)</option>
+            </select>
+          </div>
+          <textarea id="revComment" rows="3" placeholder="Share your experience with fit, fabric, or feel…" required style="border:1px solid var(--line);border-radius:12px;padding:0.9rem;font:inherit"></textarea>
+          <div style="display:flex;gap:1rem">
+            <button type="submit" class="btn btn--solid">Submit Review</button>
+            <button type="button" class="btn btn--ghost" id="cancelReviewBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="reviews-list" id="reviewsList"></div>
+    </section>
+  </main>
+
+  <!-- Sticky mobile add bar -->
+  <div class="sticky-bar" id="stickyBar">
+    <div class="sticky-bar__info">
+      <span id="stickyName">—</span>
+      <strong id="stickyPrice">—</strong>
+    </div>
+    <button class="btn btn--solid" id="stickyAdd">Add to bag</button>
+  </div>
+
+  <!-- Cart drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Shopping bag">
+    <div class="drawer__head">
+      <h3>Your bag <span class="drawer__count" id="drawerCount">0</span></h3>
+      <button class="icon-btn" id="drawerClose" aria-label="Close bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body" id="drawerBody"></div>
+    <div class="drawer__foot" id="drawerFoot">
+      <div class="drawer__subtotal">
+        <span>Subtotal</span><span id="subtotal">₹0</span>
+      </div>
+      <p class="drawer__shipping" id="shippingNote"></p>
+      <a href="checkout.html" class="btn btn--solid btn--block" id="checkoutLink">Checkout securely</a>
+    </div>
+  </aside>
+
+  <!-- Size guide modal -->
+  <div class="modal-backdrop" id="guideBackdrop"></div>
+  <div class="modal modal--guide" id="guideModal">
+    <div class="modal__inner modal__inner--guide">
+      <button class="modal__close icon-btn" id="guideClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h3 class="guide__title">Size guide</h3>
+      <p class="guide__sub">Measurements in centimetres. When in doubt, size up for an easier fit.</p>
+      <table class="guide__table">
+        <thead><tr><th>Size</th><th>Chest</th><th>Waist</th><th>Hip</th></tr></thead>
+        <tbody>
+          <tr><td>XS</td><td>84–88</td><td>64–68</td><td>88–92</td></tr>
+          <tr><td>S</td><td>89–93</td><td>69–73</td><td>93–97</td></tr>
+          <tr><td>M</td><td>94–98</td><td>74–78</td><td>98–102</td></tr>
+          <tr><td>L</td><td>99–104</td><td>79–84</td><td>103–108</td></tr>
+          <tr><td>XL</td><td>105–110</td><td>85–90</td><td>109–114</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><span class="toast__dot"></span><span id="toastMsg">Added to bag</span></div>
+
+  <script src="store.js?v=10"></script>
+  <script src="product.js?v=10"></script>
+</body>
+</html>

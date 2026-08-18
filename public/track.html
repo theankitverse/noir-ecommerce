@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Track Order — NOIR Atelier</title>
+  <meta name="description" content="Track your NOIR luxury order status live." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="style.css?v=12" />
+  <style>
+    .track-hero { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; text-align: center; }
+    .track-title { font-family: var(--font-display); font-size: clamp(2.2rem, 5vw, 3.8rem); margin-bottom: 0.5rem; }
+    .track-sub { color: var(--ink-soft); margin-bottom: 2.5rem; }
+    .track-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow-lg); text-align: left; }
+    .track-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; margin-bottom: 2rem; }
+    @media (max-width: 680px) { .track-form { grid-template-columns: 1fr; } }
+    .track-form input { border: 1px solid var(--line); border-radius: 999px; padding: 0.85rem 1.4rem; font: inherit; background: var(--paper); outline: none; transition: border-color 0.3s; }
+    .track-form input:focus { border-color: var(--ember); }
+    .timeline { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2.5rem 0 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    @media (max-width: 680px) { .timeline { grid-template-columns: 1fr; gap: 1.5rem; } }
+    .timeline-step { position: relative; text-align: center; }
+    .timeline-step::before { content: ""; position: absolute; top: -1.5rem; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--line); z-index: 2; }
+    .timeline-step.is-done::before { background: var(--ember); border-color: var(--ember); }
+    .timeline-step.is-current::before { background: var(--ink); border-color: var(--ember); box-shadow: 0 0 0 4px rgba(210,84,47,0.25); }
+    .timeline-step h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 0.2rem; }
+    .timeline-step p { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--ink-soft); text-transform: uppercase; }
+    .order-details { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--line); padding-top: 2rem; margin-top: 2rem; }
+    @media (max-width: 680px) { .order-details { grid-template-columns: 1fr; } }
+    .detail-box h3 { font-family: var(--font-display); font-size: 1.15rem; margin-bottom: 0.8rem; }
+    .detail-box p { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6; }
+    .order-items-list { list-style: none; margin-top: 1rem; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px dashed var(--line); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="header header--min">
+    <a class="header__logo" href="index.html"><span class="header__logo-serif">N</span>OIR</a>
+    <nav class="header__nav">
+      <a href="index.html#shop" class="header__link">Shop</a>
+      <a href="index.html#manifesto" class="header__link">Manifesto</a>
+      <a href="track.html" class="header__link">Track Order</a>
+    </nav>
+    <div class="header__actions">
+      <a href="index.html#shop" class="btn btn--solid" style="padding:0.6rem 1.2rem;font-size:0.7rem">Browse Drop</a>
+    </div>
+  </header>
+
+  <main class="track-hero">
+    <p class="eyebrow">Atelier Fulfillment Tracker</p>
+    <h1 class="track-title">Track Your <em>Order</em></h1>
+    <p class="track-sub">Enter your order identifier and email address to view live fulfillment updates.</p>
+
+    <div class="track-card">
+      <form class="track-form" id="trackForm">
+        <input type="text" id="trackId" placeholder="Order ID (e.g. NOIR-1001)" required />
+        <input type="email" id="trackEmail" placeholder="Email address used for order" required />
+        <button type="submit" class="btn btn--solid" id="trackBtn">Track Order</button>
+      </form>
+
+      <div id="trackResult" hidden>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:1rem">
+          <div>
+            <h2 id="resOrderTitle" style="font-family:var(--font-display);font-size:1.8rem">Order #NOIR-1001</h2>
+            <p id="resOrderDate" style="color:var(--ink-soft);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.1em">Placed on Aug 18, 2026</p>
+          </div>
+          <div>
+            <span id="resBadge" class="card__badge" style="position:static;font-size:0.75rem">PENDING</span>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline" id="timeline">
+          <div class="timeline-step" id="stepPlaced">
+            <h4>Order Placed</h4>
+            <p id="stepPlacedTime">Pending</p>
+          </div>
+          <div class="timeline-step" id="stepPaid">
+            <h4>Payment Verified</h4>
+            <p id="stepPaidTime">Pending</p>
+          </div>
+          <div class="timeline-step" id="stepShipped">
+            <h4>In Atelier / Shipped</h4>
+            <p id="stepShippedTime">Pending</p>
+          </div>
+          <div class="timeline-step" id="stepDelivered">
+            <h4>Delivered</h4>
+            <p id="stepDeliveredTime">Pending</p>
+          </div>
+        </div>
+
+        <div class="order-details">
+          <div class="detail-box">
+            <h3>Shipment Details</h3>
+            <p id="resCarrier"><strong>Carrier:</strong> BlueDart Express</p>
+            <p id="resTrackingNum"><strong>Tracking Number:</strong> <span id="trackNumVal">Pending Dispatch</span></p>
+            <p id="resShippingAddr"><strong>Delivery Address:</strong><br /><span id="addrVal">—</span></p>
+          </div>
+          <div class="detail-box">
+            <h3>Items Ordered</h3>
+            <div class="order-items-list" id="resItemList"></div>
+            <div style="margin-top:1.2rem;padding-top:0.8rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-weight:600">
+              <span>Total Paid</span>
+              <span id="resTotalPaid">₹0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p id="trackErr" style="color:var(--ember);margin-top:1rem;text-align:center" hidden></p>
+    </div>
+  </main>
+
+  <footer class="footer" style="margin-top:5rem">
+    <div class="footer__bottom">
+      <span>© 2026 NOIR Studio</span>
+      <span class="footer__ascent">Crafted slowly, worn forever.</span>
+      <span><a href="admin.html" style="opacity:.45;font-size:.8rem">Admin</a></span>
+    </div>
+  </footer>
+
+  <script src="store.js?v=12"></script>
+  <script src="track.js?v=12"></script>
+</body>
+</html>

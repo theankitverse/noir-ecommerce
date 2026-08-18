@@ -1,0 +1,346 @@
+[
+  {
+    "id": 1,
+    "name": "Noir Oversized Tee",
+    "cat": "tops",
+    "price": 4080,
+    "compare": 5780,
+    "badge": "new",
+    "rating": 4.8,
+    "reviews": 214,
+    "colors": [
+      {
+        "name": "Bone",
+        "hex": "#f2efe7"
+      },
+      {
+        "name": "Ink",
+        "hex": "#141312"
+      }
+    ],
+    "fabric": "100% organic heavyweight cotton (240 gsm)",
+    "care": [
+      "Machine wash cold",
+      "Hang dry",
+      "Iron low"
+    ],
+    "desc": "Heavyweight organic cotton in a relaxed, dropped-shoulder cut. The tee you reach for on repeat — broken-in feel from day one.",
+    "img": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 2,
+    "name": "Volt Linen Shirt",
+    "cat": "tops",
+    "price": 8160,
+    "compare": null,
+    "badge": null,
+    "rating": 4.6,
+    "reviews": 128,
+    "colors": [
+      {
+        "name": "Volt",
+        "hex": "#a3a899"
+      },
+      {
+        "name": "Paper",
+        "hex": "#efece4"
+      }
+    ],
+    "fabric": "100% European flax linen, garment-washed",
+    "care": [
+      "Machine wash gentle",
+      "Line dry",
+      "Warm iron"
+    ],
+    "desc": "Garment-washed European linen with a soft, lived-in drape. Mother-of-pearl buttons and a collar that sits just right.",
+    "img": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 3,
+    "name": "Studio Wool Jacket",
+    "cat": "outerwear",
+    "price": 18700,
+    "compare": 23375,
+    "badge": "sale",
+    "rating": 4.7,
+    "reviews": 96,
+    "colors": [
+      {
+        "name": "Camel",
+        "hex": "#b08968"
+      },
+      {
+        "name": "Ink",
+        "hex": "#141312"
+      }
+    ],
+    "fabric": "Italian wool-blend, unlined",
+    "care": [
+      "Dry clean only",
+      "Steam to refresh"
+    ],
+    "desc": "A tailored overshirt in Italian wool-blend. Structured shoulders, dropped pockets, and zero lining so it layers beautifully.",
+    "img": "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1544441893-675973e31985?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1544441893-675973e31985?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 4,
+    "name": "Sculpt Bias Dress",
+    "cat": "bottoms",
+    "price": 11900,
+    "compare": null,
+    "badge": null,
+    "rating": 4.5,
+    "reviews": 87,
+    "colors": [
+      {
+        "name": "Sand",
+        "hex": "#d8c8ae"
+      },
+      {
+        "name": "Noir",
+        "hex": "#1b1917"
+      }
+    ],
+    "fabric": "Crepe viscose, bias cut",
+    "care": [
+      "Hand wash cold",
+      "Dry flat"
+    ],
+    "desc": "Cut on the bias from crepe viscose for a fluid, sculpting silhouette that moves with you from desk to dinner.",
+    "img": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 5,
+    "name": "Raw Selvedge Denim",
+    "cat": "bottoms",
+    "price": 13430,
+    "compare": null,
+    "badge": null,
+    "rating": 4.9,
+    "reviews": 342,
+    "colors": [
+      {
+        "name": "Indigo",
+        "hex": "#31406b"
+      },
+      {
+        "name": "Faded",
+        "hex": "#7d8aa5"
+      }
+    ],
+    "fabric": "14oz Japanese selvedge denim",
+    "care": [
+      "Wash rarely",
+      "Cold, inside out",
+      "Line dry"
+    ],
+    "desc": "14oz Japanese selvedge denim in a straight-leg cut. Breaks in with creases that are unmistakably yours.",
+    "img": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1542272604-787c3835535d?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 6,
+    "name": "Terracotta Rib Knit",
+    "cat": "tops",
+    "price": 7480,
+    "compare": 9350,
+    "badge": "sale",
+    "rating": 4.6,
+    "reviews": 173,
+    "colors": [
+      {
+        "name": "Terracotta",
+        "hex": "#c96f47"
+      },
+      {
+        "name": "Oat",
+        "hex": "#d9cfbd"
+      }
+    ],
+    "fabric": "Ribbed merino wool (extra-fine)",
+    "care": [
+      "Hand wash cold",
+      "Dry flat",
+      "Fold, don't hang"
+    ],
+    "desc": "Ribbed merino with a close, second-skin fit. Dyed in our signature terracotta — warmth without the weight.",
+    "img": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 7,
+    "name": "Meridian Tailored Trouser",
+    "cat": "bottoms",
+    "price": 11220,
+    "compare": null,
+    "badge": "new",
+    "rating": 4.7,
+    "reviews": 141,
+    "colors": [
+      {
+        "name": "Taupe",
+        "hex": "#b4a48c"
+      },
+      {
+        "name": "Charcoal",
+        "hex": "#3a3a38"
+      }
+    ],
+    "fabric": "Stretch wool with gentle taper",
+    "care": [
+      "Dry clean",
+      "Steam only"
+    ],
+    "desc": "A clean, high-rise trouser in stretch wool with a gentle taper. Pairs with sneakers and loafers in equal measure.",
+    "img": "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 8,
+    "name": "Canvas Field Tote",
+    "cat": "accessories",
+    "price": 5440,
+    "compare": null,
+    "badge": null,
+    "rating": 4.4,
+    "reviews": 76,
+    "colors": [
+      {
+        "name": "Olive",
+        "hex": "#7a7d54"
+      },
+      {
+        "name": "Sand",
+        "hex": "#cbb99a"
+      }
+    ],
+    "fabric": "Waxed canvas + full-grain leather handles",
+    "care": [
+      "Spot clean",
+      "Re-wax yearly"
+    ],
+    "desc": "Waxed canvas with full-grain leather handles. Built to carry the everyday and the weekend — and age handsomely doing it.",
+    "img": "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 9,
+    "name": "Sable Wrap Coat",
+    "cat": "outerwear",
+    "price": 26350,
+    "compare": 30600,
+    "badge": "sale",
+    "rating": 4.8,
+    "reviews": 64,
+    "colors": [
+      {
+        "name": "Sable",
+        "hex": "#5b4636"
+      },
+      {
+        "name": "Cream",
+        "hex": "#e9e2d2"
+      }
+    ],
+    "fabric": "Brushed alpaca-blend (60/40)",
+    "care": [
+      "Dry clean",
+      "Store on padded hanger"
+    ],
+    "desc": "A cocoon wrap in brushed alpaca-blend. Dramatic collar, zero fastenings, total ease — the coat that gets you stopped.",
+    "img": "https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  },
+  {
+    "id": 10,
+    "name": "Cargo Utility Vest",
+    "cat": "outerwear",
+    "price": 8840,
+    "compare": null,
+    "badge": null,
+    "rating": 4.5,
+    "reviews": 52,
+    "colors": [
+      {
+        "name": "Olive",
+        "hex": "#6b6b49"
+      },
+      {
+        "name": "Black",
+        "hex": "#1c1b1a"
+      }
+    ],
+    "fabric": "Technical cotton twill",
+    "care": [
+      "Machine wash cold",
+      "Air dry"
+    ],
+    "desc": "Technical twill vest with gusseted pockets and a hidden hood. Utilitarian on purpose, refined in the details.",
+    "img": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&q=80&auto=format&fit=crop",
+    "hover": "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=800&q=80&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800&q=80&auto=format&fit=crop"
+    ],
+    "inStock": true
+  }
+]

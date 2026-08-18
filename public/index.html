@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOIR — Studio Apparel for the Modern Mind</title>
+  <meta name="description" content="NOIR is a modern clothing atelier. Timeless silhouettes, responsibly made." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+
+  <!-- Preloader -->
+  <div class="loader" id="loader">
+    <div class="loader__inner">
+      <span class="loader__word">NOIR</span>
+      <div class="loader__bar"><span></span></div>
+    </div>
+  </div>
+
+  <!-- Film grain texture -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Announcement ticker -->
+  <div class="ticker ticker--top">
+    <div class="ticker__track">
+      <span>Free shipping over ₹10,200</span><span class="dot">✦</span>
+      <span>New Season: The Rituals Edit</span><span class="dot">✦</span>
+      <span>Free returns, always</span><span class="dot">✦</span>
+      <span>Members save 10%</span><span class="dot">✦</span>
+      <span>Free shipping over ₹10,200</span><span class="dot">✦</span>
+      <span>New Season: The Rituals Edit</span><span class="dot">✦</span>
+      <span>Free returns, always</span><span class="dot">✦</span>
+      <span>Members save 10%</span><span class="dot">✦</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <a class="header__logo" href="index.html" aria-label="NOIR home">
+      <span class="header__logo-serif">N</span>OIR
+    </a>
+    <nav class="header__nav" aria-label="Primary">
+      <a href="#shop" class="header__link">Shop</a>
+      <a href="#manifesto" class="header__link">Manifesto</a>
+      <a href="#journal" class="header__link">Journal</a>
+      <a href="track.html" class="header__link">Track Order</a>
+      <a href="#contact" class="header__link">Contact</a>
+    </nav>
+    <div class="header__actions">
+      <button class="icon-btn js-search" aria-label="Search" id="searchBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </button>
+      <button class="icon-btn wish-btn" aria-label="Wishlist" id="wishBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S4 15 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5c0 5.5-8 11-8 11Z"/></svg>
+        <span class="wish-btn__count" id="wishCount">0</span>
+      </button>
+      <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+      <button class="header__menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <!-- Search overlay -->
+  <div class="search" id="search">
+    <div class="search__bar">
+      <svg class="search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="searchInput" type="text" placeholder="Search silhouettes, fabrics, vibes…" autocomplete="off" />
+      <button class="search__close" id="searchClose" aria-label="Close search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="search__hint">Live results as you type · Esc to close</p>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <nav class="menu__links">
+      <a href="#shop">Shop</a>
+      <a href="#manifesto">Manifesto</a>
+      <a href="#journal">Journal</a>
+      <a href="track.html">Track Order</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <p class="menu__foot">© 2026 NOIR Studio — Crafted slowly.</p>
+  </div>
+
+  <main id="top">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero__copy">
+        <p class="eyebrow reveal">The Rituals Edit — S/S 26</p>
+        <h1 class="hero__title reveal">
+          <span class="line"><span class="line__inner">Wear the</span></span>
+          <span class="line"><span class="line__inner line__inner--ital">quiet</span> <span class="line__inner">of</span></span>
+          <span class="line"><span class="line__inner">confidence.</span></span>
+        </h1>
+        <div class="hero__cta reveal">
+          <a href="#shop" class="btn btn--solid">Shop the drop</a>
+          <a href="#manifesto" class="btn btn--ghost">Our manifesto</a>
+        </div>
+      </div>
+      <div class="hero__media" id="heroMedia">
+        <img src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=900&q=80&auto=format&fit=crop"
+             alt="Editorial fashion photograph" />
+        <div class="hero__stamp">est. 2020<span>·</span>Atelier 04</div>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Timeless silhouettes</span><i>✦</i>
+        <span>Responsibly made</span><i>✦</i>
+        <span>Wear it forever</span><i>✦</i>
+        <span>Slow fashion, fast minds</span><i>✦</i>
+        <span>Timeless silhouettes</span><i>✦</i>
+        <span>Responsibly made</span><i>✦</i>
+        <span>Wear it forever</span><i>✦</i>
+        <span>Slow fashion, fast minds</span><i>✦</i>
+      </div>
+    </div>
+
+    <!-- Manifesto -->
+    <section class="manifesto" id="manifesto">
+      <p class="eyebrow reveal">Manifesto 001</p>
+      <h2 class="manifesto__title reveal">
+        We make clothes that outlast <em>seasons</em>, not the other way around.
+      </h2>
+      <div class="manifesto__meta reveal">
+        <p>Born between a vintage archive and a modern studio, NOIR reworks timeless silhouettes into something quietly new. Natural fibres, honest construction, and a fit that moves with you.</p>
+        <ul class="manifesto__stats">
+          <li><strong>100%</strong><span>natural fibres</span></li>
+          <li><strong>43</strong><span>atelier partners</span></li>
+          <li><strong>0</strong><span>seasonal waste</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Shop -->
+    <section class="shop" id="shop">
+      <div class="shop__head">
+        <div>
+          <p class="eyebrow reveal">The Collection</p>
+          <h2 class="shop__title reveal">Shop the <em>rituals</em></h2>
+        </div>
+        <div class="shop__tools reveal">
+          <div class="filters" id="filters">
+            <button class="chip is-active" data-filter="all">All</button>
+            <button class="chip" data-filter="tops">Tops</button>
+            <button class="chip" data-filter="bottoms">Bottoms</button>
+            <button class="chip" data-filter="outerwear">Outerwear</button>
+            <button class="chip" data-filter="accessories">Accessories</button>
+          </div>
+          <div class="sort-wrap">
+            <select class="sort" id="sortSelect" aria-label="Sort products">
+              <option value="featured">Sort: Featured</option>
+              <option value="price-asc">Price · Low to high</option>
+              <option value="price-desc">Price · High to low</option>
+              <option value="new">Newest first</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="grid" id="grid">
+        <div class="grid__skeleton" aria-hidden="true"></div>
+        <div class="grid__skeleton" aria-hidden="true"></div>
+        <div class="grid__skeleton" aria-hidden="true"></div>
+        <div class="grid__skeleton" aria-hidden="true"></div>
+        <div class="grid__skeleton" aria-hidden="true"></div>
+        <div class="grid__skeleton" aria-hidden="true"></div>
+      </div>
+      <p class="grid__empty" id="gridEmpty" hidden>Nothing matches your search. Try another keyword.</p>
+    </section>
+
+    <!-- Editorial split -->
+    <section class="editorial" id="journal">
+      <div class="editorial__media reveal">
+        <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?w=900&q=80&auto=format&fit=crop" alt="Editorial image" />
+        <div class="editorial__note">Journal №4 —<br />The Slow Look</div>
+      </div>
+      <div class="editorial__copy">
+        <p class="eyebrow reveal">Journal №4</p>
+        <h2 class="editorial__title reveal">The art of<br /><em>getting dressed</em>.</h2>
+        <p class="editorial__text reveal">A short film on dressing without the noise — three looks, one weekend, zero compromise. Directed with the NOIR atelier in Copenhagen.</p>
+        <a href="#" class="btn btn--ghost reveal">Read the story</a>
+      </div>
+    </section>
+
+    <!-- Press -->
+    <section class="press reveal">
+      <p class="press__quote">“NOIR is proof that minimalism can still have a pulse.”</p>
+      <div class="press__logos">
+        <span>VOGUE</span><span>MONOCLE</span><span>i-D</span><span>GQ</span><span>Kinfolk</span>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter" id="contact">
+      <div class="newsletter__inner">
+        <h2 class="newsletter__title reveal">Join the <em>inner circle</em>.</h2>
+        <p class="newsletter__sub reveal">Early access to drops, member pricing, and a 10% welcome gift.</p>
+        <form class="newsletter__form reveal" id="newsletterForm">
+          <input type="email" placeholder="your@email.com" required aria-label="Email address" />
+          <button class="btn btn--solid" type="submit">Subscribe</button>
+        </form>
+        <p class="newsletter__fine">No spam. Unsubscribe anytime.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="header__logo" href="index.html"><span class="header__logo-serif">N</span>OIR</a>
+        <p>Studio apparel for the modern mind. Designed in Copenhagen, made responsibly.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Shop</h4>
+        <a href="#shop">Tops</a><a href="#shop">Bottoms</a><a href="#shop">Outerwear</a><a href="#shop">Accessories</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="#manifesto">Manifesto</a><a href="#journal">Journal</a><a href="#contact">Contact</a><a href="#">Careers</a>
+      </div>
+      <div class="footer__col">
+        <h4>Social</h4>
+        <a href="#">Instagram</a><a href="#">TikTok</a><a href="#">Pinterest</a><a href="#">Spotify</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 NOIR Studio</span>
+      <span class="footer__ascent">Crafted slowly, worn forever.</span>
+      <span><a href="admin.html" style="opacity:.45;font-size:.8rem">Admin</a></span>
+    </div>
+  </footer>
+
+  <!-- Cart drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Shopping bag">
+    <div class="drawer__head">
+      <h3>Your bag <span class="drawer__count" id="drawerCount">0</span></h3>
+      <button class="icon-btn" id="drawerClose" aria-label="Close bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body" id="drawerBody"></div>
+    <div class="drawer__foot" id="drawerFoot">
+      <div class="drawer__subtotal">
+        <span>Subtotal</span><span id="subtotal">₹0</span>
+      </div>
+      <p class="drawer__shipping" id="shippingNote">Add ₹10,200 for free shipping</p>
+      <a href="checkout.html" class="btn btn--solid btn--block" id="checkoutLink">Checkout securely</a>
+      <button class="btn btn--ghost btn--block drawer__keep" id="keepShopping">Continue shopping</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist drawer -->
+  <div class="drawer-backdrop" id="wishBackdrop"></div>
+  <aside class="drawer drawer--wish" id="wishDrawer" aria-hidden="true" aria-label="Wishlist">
+    <div class="drawer__head">
+      <h3>Saved <span class="drawer__count" id="wishDrawerCount">0</span></h3>
+      <button class="icon-btn" id="wishDrawerClose" aria-label="Close wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body" id="wishBody"></div>
+  </aside>
+
+  <!-- Quick view modal -->
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Product quick view">
+    <button class="modal__close icon-btn" id="modalClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="modal__inner" id="modalInner"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><span class="toast__dot"></span><span id="toastMsg">Added to bag</span></div>
+
+  <!-- Back to top -->
+  <button class="to-top" id="toTop" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+
+  <script src="store.js?v=10"></script>
+  <script src="script.js?v=10"></script>
+</body>
+</html>

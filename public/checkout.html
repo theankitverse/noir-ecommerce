@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — NOIR</title>
+  <meta name="description" content="Secure checkout for NOIR." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="style.css?v=11" />
+</head>
+<body>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header header--min">
+    <a class="header__logo" href="index.html"><span class="header__logo-serif">N</span>OIR</a>
+    <nav class="header__nav">
+      <a href="index.html#shop" class="header__link">Shop</a>
+      <a href="index.html#manifesto" class="header__link">Manifesto</a>
+      <a href="track.html" class="header__link">Track Order</a>
+    </nav>
+    <div class="header__actions">
+      <button class="icon-btn cart-btn" id="cartBtn" aria-label="Open bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="cart-btn__count" id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="checkout">
+    <h1 class="checkout__title">Checkout</h1>
+    <p class="checkout__sub">Almost yours. Securely processed.</p>
+
+    <div class="checkout__layout">
+      <!-- Form -->
+      <form class="checkout__form" id="checkoutForm" novalidate>
+        <div class="co-block">
+          <h2><span>1</span>Contact</h2>
+            <label class="field">
+              <span>Email</span>
+              <input id="coEmail" type="email" autocomplete="email" placeholder="you@example.com" required />
+              <span class="err" hidden>Enter a valid email</span>
+            </label>
+            <label class="field">
+              <span>Phone <small>(required for UPI payments)</small></span>
+              <input id="coPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" />
+            </label>
+        </div>
+
+        <div class="co-block">
+          <h2><span>2</span>Delivery</h2>
+          <div class="co-row">
+            <label class="field">
+              <span>Full name</span>
+              <input type="text" id="coName" placeholder="Jane Appleseed" required />
+              <small class="err" hidden>Required.</small>
+            </label>
+          </div>
+          <label class="field">
+            <span>Address</span>
+            <input type="text" id="coLine1" placeholder="Street and number" required />
+            <small class="err" hidden>Required.</small>
+          </label>
+          <div class="co-row co-row--3">
+            <label class="field">
+              <span>City</span>
+              <input type="text" id="coCity" placeholder="Copenhagen" required />
+              <small class="err" hidden>Required.</small>
+            </label>
+            <label class="field">
+              <span>Postal code</span>
+              <input type="text" id="coZip" placeholder="1050" required />
+              <small class="err" hidden>Required.</small>
+            </label>
+            <label class="field">
+              <span>Country</span>
+              <select id="coCountry">
+                <option value="US">United States</option>
+                <option value="IN">India</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="NL">Netherlands</option>
+                <option value="DK" selected>Denmark</option>
+                <option value="SE">Sweden</option>
+                <option value="NO">Norway</option>
+                <option value="AE">UAE</option>
+                <option value="JP">Japan</option>
+                <option value="SG">Singapore</option>
+              </select>
+            </label>
+          </div>
+          <label class="field">
+            <span>Order notes <small>(optional)</small></span>
+            <textarea id="coNotes" rows="2" placeholder="Gift wrapping, delivery instructions…"></textarea>
+          </label>
+        </div>
+
+        <div class="co-block">
+          <h2><span>3</span>Payment</h2>
+
+          <!-- Razorpay / India Payment Options -->
+          <div class="pay pay--razorpay" id="payRazorpay" hidden>
+            <div class="pay-tabs" style="display:flex;gap:0.5rem;margin-bottom:1.2rem;border-bottom:1px solid var(--line);padding-bottom:0.5rem">
+              <button type="button" class="btn btn--solid" id="tabUpiDirect" style="padding:0.6rem 1rem;font-size:0.74rem">📱 Direct UPI / QR Code</button>
+              <button type="button" class="btn btn--ghost" id="tabRazorpayModal" style="padding:0.6rem 1rem;font-size:0.74rem">💳 Razorpay Gateway Window</button>
+            </div>
+
+            <!-- Direct UPI & QR Code Block -->
+            <div id="blockUpiDirect" style="background:var(--paper-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.2rem">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+                <div>
+                  <h3 style="font-family:var(--font-display);font-size:1.15rem;margin-bottom:0.2rem">Scan QR or Tap App to Pay</h3>
+                  <p style="font-size:0.78rem;color:var(--ink-soft)">Pay with Google Pay, PhonePe, Paytm, BHIM or any UPI app</p>
+                </div>
+                <div class="pay__cards" style="margin:0">
+                  <span class="pay__card-badge" style="background:#2b7a4b;color:#fff">INSTANT UPI</span>
+                </div>
+              </div>
+
+              <!-- UPI App Quick Buttons (for mobile & desktop) -->
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:0.6rem;margin-bottom:1.2rem">
+                <button type="button" class="btn btn--ghost upi-app-btn" data-app="gpay" style="padding:0.6rem;font-size:0.7rem;border-radius:10px;background:var(--white)">
+                  🌐 Google Pay
+                </button>
+                <button type="button" class="btn btn--ghost upi-app-btn" data-app="phonepe" style="padding:0.6rem;font-size:0.7rem;border-radius:10px;background:var(--white)">
+                  🟣 PhonePe
+                </button>
+                <button type="button" class="btn btn--ghost upi-app-btn" data-app="paytm" style="padding:0.6rem;font-size:0.7rem;border-radius:10px;background:var(--white)">
+                  🔵 Paytm
+                </button>
+                <button type="button" class="btn btn--ghost upi-app-btn" data-app="bhim" style="padding:0.6rem;font-size:0.7rem;border-radius:10px;background:var(--white)">
+                  🇮🇳 BHIM / Any UPI
+                </button>
+              </div>
+
+              <!-- QR Code & VPA Display -->
+              <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;background:var(--white);padding:1.2rem;border-radius:12px;border:1px solid var(--line);margin-bottom:1.2rem">
+                <div style="text-align:center">
+                  <img id="upiQrImg" src="" alt="UPI QR Code" style="width:140px;height:140px;border-radius:8px;border:1px solid var(--line);margin:0 auto" />
+                  <span style="font-size:0.65rem;letter-spacing:0.1em;color:var(--ink-soft);display:block;margin-top:0.3rem">SCAN WITH ANY UPI APP</span>
+                </div>
+                <div style="flex:1;min-width:200px">
+                  <p style="font-size:0.8rem;color:var(--ink-soft);margin-bottom:0.3rem">Official Atelier UPI VPA:</p>
+                  <div style="display:flex;align-items:center;gap:0.5rem;background:var(--paper);padding:0.6rem 0.9rem;border-radius:8px;border:1px solid var(--line);font-family:monospace;font-weight:600;font-size:0.9rem">
+                    <span id="upiVpaText">noir.atelier@razorpay</span>
+                    <button type="button" id="copyVpaBtn" style="margin-left:auto;font-size:0.7rem;color:var(--ember);text-decoration:underline">Copy</button>
+                  </div>
+                  <label class="field" style="margin-top:0.8rem">
+                    <span style="font-size:0.72rem">Enter your UPI ID / UTR (optional verification)</span>
+                    <input id="upiUserVpa" placeholder="e.g. 9876543210@ybl or UTR Ref No." style="padding:0.55rem 0.8rem;font-size:0.85rem" />
+                  </label>
+                </div>
+              </div>
+
+              <button type="button" class="btn btn--solid btn--block" id="payDirectUpiBtn" style="background:#2b7a4b;border-color:#2b7a4b">
+                I Have Paid via UPI · Confirm Order (<span class="directUpiAmount">₹0</span>)
+              </button>
+            </div>
+
+            <!-- Razorpay Modal Gateway Block (Hidden by default, toggled via tab) -->
+            <div id="blockRazorpayModal" hidden>
+              <p class="pay__note">Open Razorpay's secure payment popup window for Cards, Netbanking, Wallets, and EMI options.</p>
+              <button type="button" class="btn btn--solid btn--block" id="payRazorpayBtn">
+                Open Razorpay Payment Window (<span id="razorpayAmount">₹0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Stripe mode (fallback outside India) -->
+          <div class="pay pay--stripe" id="payStripe" hidden>
+            <div class="pay__cards">
+              <span class="pay__card-badge">VISA</span>
+              <span class="pay__card-badge">MASTERCARD</span>
+              <span class="pay__card-badge">AMEX</span>
+              <span class="pay__card-badge">APPLE&nbsp;PAY</span>
+            </div>
+            <p class="pay__note">You'll be redirected to Stripe's secure checkout to complete your payment. We never see your card details.</p>
+            <button type="button" class="btn btn--solid btn--block" id="payStripeBtn">
+              Pay <span id="stripeAmount">₹0</span>
+            </button>
+          </div>
+
+          <!-- Demo mode -->
+          <div class="pay pay--demo" id="payDemo" hidden>
+            <p class="pay__note pay__note--demo">
+              <strong>Demo mode</strong> — no payment gateway key configured. Use any test card format to simulate a payment.
+            </p>
+            <label class="field">
+              <span>Card number</span>
+              <input id="demoCard" inputmode="numeric" placeholder="4242 4242 4242 4242" maxlength="19" />
+            </label>
+            <div class="co-row co-row--2">
+              <label class="field">
+                <span>Expiry</span>
+                <input id="demoExp" placeholder="12 / 28" maxlength="7" />
+              </label>
+              <label class="field">
+                <span>CVC</span>
+                <input id="demoCvc" inputmode="numeric" placeholder="123" maxlength="4" />
+              </label>
+            </div>
+            <button type="button" class="btn btn--solid btn--block" id="demoPayBtn">
+              Pay <span id="demoAmount">₹0</span>
+            </button>
+          </div>
+
+          <div class="pay__secure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            256-bit SSL encrypted · PCI-DSS compliant · <span id="gatewayName">Powered by NOIR Payments</span>
+          </div>
+        </div>
+      </form>
+
+      <!-- Order summary -->
+      <aside class="co-summary">
+        <h3>Order summary</h3>
+        <div class="co-summary__items" id="summaryItems"></div>
+
+        <div class="co-coupon">
+          <div class="co-coupon__row">
+            <input type="text" id="couponInput" placeholder="Promo code (e.g. NOIR10)" style="text-transform:uppercase" />
+            <button type="button" class="btn btn--solid" id="applyCouponBtn">Apply</button>
+          </div>
+          <p class="co-coupon__msg" id="couponMsg" hidden></p>
+        </div>
+
+        <div class="co-summary__lines">
+          <div><span>Subtotal</span><strong id="sumSubtotal">₹0</strong></div>
+          <div id="discountLine" hidden><span>Discount</span><strong id="sumDiscount" style="color:var(--c-accent, #d2542f)">−₹0</strong></div>
+          <div><span>Shipping</span><strong id="sumShipping">—</strong></div>
+          <div class="co-summary__total"><span>Total</span><strong id="sumTotal">₹0</strong></div>
+        </div>
+        <p class="co-summary__promo" id="sumPromo"></p>
+        <a href="index.html#shop" class="btn btn--ghost btn--block">Continue shopping</a>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Cart drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Shopping bag">
+    <div class="drawer__head">
+      <h3>Your bag <span class="drawer__count" id="drawerCount">0</span></h3>
+      <button class="icon-btn" id="drawerClose" aria-label="Close bag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="drawer__body" id="drawerBody"></div>
+    <div class="drawer__foot" id="drawerFoot">
+      <div class="drawer__subtotal"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+      <p class="drawer__shipping" id="shippingNote"></p>
+    </div>
+  </aside>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"><span class="toast__dot"></span><span id="toastMsg">Added to bag</span></div>
+
+  <script src="store.js?v=11"></script>
+  <script src="checkout.js?v=11"></script>
+</body>
+</html>

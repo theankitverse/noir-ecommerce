@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOIR — Admin</title>
+  <link rel="stylesheet" href="style.css?v=10" />
+  <style>
+    body { padding: 2rem 1.4rem 4rem; }
+    .admin-wrap { max-width: 1100px; margin: 0 auto; }
+    .admin-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .admin-top h1 { font-family: var(--font-display); font-weight: 600; font-size: 2rem; }
+    .admin-badge { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ember); border: 1px solid var(--line); padding: .35rem .6rem; border-radius: 999px; }
+
+    .login { max-width: 380px; margin: 12vh auto 0; padding: 2.2rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-2); }
+    .login h2 { font-family: var(--font-display); font-weight: 600; margin-bottom: .3rem; }
+    .login p { color: var(--ink-soft); font-size: .9rem; margin-bottom: 1.2rem; }
+    .login form { display: grid; gap: .8rem; }
+    .login input { padding: .8rem 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
+    .login .err { color: var(--ember); font-size: .85rem; min-height: 1.1em; }
+
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1.4rem; border-bottom: 1px solid var(--line); }
+    .tabs button { padding: .7rem 1.1rem; font-size: .95rem; opacity: .6; border-bottom: 2px solid transparent; }
+    .tabs button.is-active { opacity: 1; border-bottom-color: var(--ember); color: var(--ember); }
+
+    .admin-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .admin-bar h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.4rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: .65rem .6rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+    td img { width: 42px; height: 52px; object-fit: cover; border-radius: 6px; }
+    tr:hover td { background: rgba(20,19,18,.03); }
+    .row-actions { display: flex; gap: .4rem; }
+    .mini-btn { font-size: .78rem; padding: .3rem .6rem; border: 1px solid var(--line); border-radius: 6px; background: var(--white); }
+    .mini-btn.danger { color: var(--ember); }
+    .stock-out { color: var(--ember); font-size: .75rem; }
+
+    .status-select { padding: .3rem .5rem; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font-size: .85rem; }
+
+    .modal { display: none; align-items: flex-start; justify-content: center; padding: 1.2rem; }
+    .modal.is-open { display: flex; }
+    .modal__card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); width: min(720px, 100%); max-height: 90vh; overflow-y: auto; padding: 1.6rem; }
+    .modal__card h3 { font-family: var(--font-display); font-weight: 600; margin-bottom: 1rem; }
+    .modal__card .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    .modal__card .span-2 { grid-column: 1 / -1; }
+    .modal__card label { display: grid; gap: .3rem; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+    .modal__card input, .modal__card select, .modal__card textarea {
+      width: 100%; padding: .6rem .75rem; border: 1px solid var(--line); border-radius: 8px;
+      background: var(--white); color: var(--ink); font-size: .92rem; text-transform: none; letter-spacing: 0;
+    }
+    .modal__foot { display: flex; gap: .6rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+    .empty { padding: 2.5rem; text-align: center; color: var(--ink-soft); border: 1px dashed var(--line); border-radius: var(--radius); }
+
+    .order-items { font-size: .8rem; color: var(--ink-soft); }
+    .order-total { font-weight: 600; }
+    .pill { display: inline-block; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; padding: .25rem .55rem; border-radius: 999px; border: 1px solid var(--line); }
+    .pill.paid, .pill.shipped, .pill.delivered { color: var(--green); border-color: rgba(47,125,77,.4); }
+    .pill.pending { color: #a3761c; border-color: rgba(163,118,28,.4); }
+    .pill.cancelled, .pill.refunded { color: var(--ember); border-color: rgba(210,84,47,.4); }
+
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translate(-50%, 140%); background: var(--ink); color: var(--white); padding: .8rem 1.4rem; border-radius: 999px; font-size: .9rem; transition: transform .35s var(--ease); z-index: 300; }
+    .toast.is-show { transform: translate(-50%, 0); }
+    .toast.is-err { background: var(--ember); }
+
+    @media (max-width: 700px) {
+      .modal__card .form-grid { grid-template-columns: 1fr; }
+      .modal__card .span-2 { grid-column: auto; }
+      th:nth-child(3), td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <!-- Login -->
+    <div class="login" id="loginView">
+      <h2>NOIR Admin</h2>
+      <p>Sign in to manage products and orders.</p>
+      <form id="loginForm">
+        <input type="password" id="loginPass" placeholder="Admin password" autocomplete="current-password" required />
+        <button class="btn btn--solid" type="submit">Sign in</button>
+        <span class="err" id="loginErr"></span>
+      </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashView" hidden>
+      <div class="admin-top">
+        <h1>NOIR <span style="color:var(--ember)">Admin</span></h1>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <a class="admin-badge" href="index.html" target="_blank">View store ↗</a>
+          <button class="mini-btn" id="logoutBtn">Log out</button>
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <button class="is-active" data-tab="products">Products</button>
+        <button data-tab="orders">Orders</button>
+        <button data-tab="coupons">Coupons</button>
+        <button data-tab="newsletter">Newsletter</button>
+      </nav>
+
+      <!-- Products tab -->
+      <section id="tab-products">
+        <div class="admin-bar">
+          <h2>Products <span id="prodCount" style="color:var(--ink-soft)"></span></h2>
+          <button class="btn btn--solid" id="addProductBtn">+ Add product</button>
+        </div>
+        <div id="prodList"></div>
+      </section>
+
+      <!-- Orders tab -->
+      <section id="tab-orders" hidden>
+        <div class="admin-bar"><h2>Orders</h2></div>
+        <div id="orderList"></div>
+      </section>
+
+      <!-- Coupons tab -->
+      <section id="tab-coupons" hidden>
+        <div class="admin-bar">
+          <h2>Coupons &amp; Promo Codes</h2>
+          <button class="btn btn--solid" id="addCouponBtn">+ Create Coupon</button>
+        </div>
+        <div id="couponList"></div>
+      </section>
+
+      <!-- Newsletter tab -->
+      <section id="tab-newsletter" hidden>
+        <div class="admin-bar">
+          <h2>Newsletter signups</h2>
+          <button class="btn btn--ghost" id="exportCsvBtn">Export CSV ⤓</button>
+        </div>
+        <div id="newsList"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Product editor modal -->
+  <div class="modal" id="productModal" role="dialog" aria-modal="true">
+    <div class="modal__card">
+      <h3 id="pmTitle">Add product</h3>
+      <form class="form-grid" id="productForm">
+        <label class="span-2">Name <input id="fName" required /></label>
+        <label>Category
+          <select id="fCat">
+            <option value="tops">Tops</option>
+            <option value="bottoms">Bottoms</option>
+            <option value="outerwear">Outerwear</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </label>
+        <label>Price (INR) <input id="fPrice" type="number" step="1" min="0" required /></label>
+        <label>Compare-at price <input id="fCompare" type="number" step="0.01" min="0" placeholder="optional" /></label>
+        <label>Badge
+          <select id="fBadge">
+            <option value="">None</option>
+            <option value="new">New</option>
+            <option value="sale">Sale</option>
+          </select>
+        </label>
+        <label>Rating (0–5) <input id="fRating" type="number" step="0.1" min="0" max="5" value="4.5" /></label>
+        <label>Reviews <input id="fReviews" type="number" step="1" min="0" value="0" /></label>
+        <label class="span-2">Description <textarea id="fDesc" rows="3"></textarea></label>
+        <label class="span-2">Image URL <input id="fImg" placeholder="https://…" /></label>
+        <label class="span-2">Hover image URL <input id="fHover" placeholder="optional — defaults to main image" /></label>
+        <label class="span-2">Gallery URLs <input id="fGallery" placeholder="comma separated, optional" /></label>
+        <label>Fabric <input id="fFabric" placeholder="e.g. 100% organic cotton" /></label>
+        <label>Care <input id="fCare" placeholder="comma separated, e.g. Wash cold, Hang dry" /></label>
+        <label>Colors <input id="fColors" placeholder="e.g. Bone:#f2efe7, Ink:#141312" /></label>
+        <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;letter-spacing:0">
+          <input id="fStock" type="checkbox" style="width:auto" checked /> In stock
+        </label>
+        <div class="modal__foot span-2">
+          <button type="button" class="btn btn--ghost" id="pmCancel">Cancel</button>
+          <button type="submit" class="btn btn--solid" id="pmSave">Save product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="store.js?v=10"></script>
+  <script src="admin.js?v=10"></script>
+</body>
+</html>

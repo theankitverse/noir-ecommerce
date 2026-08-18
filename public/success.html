@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order confirmed — NOIR</title>
+  <meta name="description" content="Your NOIR order." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="style.css?v=10" />
+</head>
+<body>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="header header--min">
+    <a class="header__logo" href="index.html"><span class="header__logo-serif">N</span>OIR</a>
+    <nav class="header__nav">
+      <a href="index.html#shop" class="header__link">Shop</a>
+      <a href="index.html#manifesto" class="header__link">Manifesto</a>
+    </nav>
+  </header>
+
+  <main class="success">
+    <div class="success__check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12.5l5 5L20 6.5"/></svg>
+    </div>
+    <h1 class="success__title">Order confirmed.</h1>
+    <p class="success__sub" id="successSub">Thank you. A confirmation is on its way.</p>
+
+    <div class="success__card">
+      <div class="success__row">
+        <span>Order number</span><strong id="sOrderId">—</strong>
+      </div>
+      <div class="success__row">
+        <span>Email</span><strong id="sEmail">—</strong>
+      </div>
+      <div class="success__row">
+        <span>Status</span><span class="status-pill" id="sStatus">—</span>
+      </div>
+    </div>
+
+    <div class="success__items" id="sItems"></div>
+
+    <div class="success__card">
+      <div class="success__row"><span>Subtotal</span><strong id="sSubtotal">—</strong></div>
+      <div class="success__row"><span>Shipping</span><strong id="sShipping">—</strong></div>
+      <div class="success__row success__row--total"><span>Total</span><strong id="sTotal">—</strong></div>
+    </div>
+
+    <div class="success__card" id="sAddressCard">
+      <p class="success__card-title">Shipping to</p>
+      <p id="sAddress">—</p>
+    </div>
+
+    <div class="success__cta">
+      <a href="index.html#shop" class="btn btn--solid">Continue shopping</a>
+      <a href="index.html" class="btn btn--ghost">Back to home</a>
+    </div>
+  </main>
+
+  <script src="store.js?v=10"></script>
+  <script src="success.js?v=10"></script>
+</body>
+</html>
