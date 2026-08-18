@@ -42,13 +42,17 @@ function enrichedItems() {
 }
 
 let activeCoupon = null;
+let activeCouponObj = null;
 let discountAmount = 0;
 
 function totals() {
   const subtotal = S.cartSubtotal();
   const discount = discountAmount || 0;
   const taxable = Math.max(0, subtotal - discount);
-  const shipping = subtotal === 0 || taxable >= config.freeShipping ? 0 : config.shippingFee;
+  const cCode = (activeCouponObj?.code || activeCoupon || "").toString().toUpperCase();
+  const cType = (activeCouponObj?.type || "").toString().toLowerCase();
+  const isFreeShipCoupon = cType === "shipping" || cType === "freeship" || ["FREESHIP", "ZEROSHIP", "TESTSHIP"].includes(cCode);
+  const shipping = subtotal === 0 || isFreeShipCoupon || taxable >= config.freeShipping ? 0 : config.shippingFee;
   return { subtotal, discount, shipping, total: Math.max(0, taxable + shipping) };
 }
 
@@ -158,6 +162,7 @@ async function applyCoupon() {
     });
 
     if (res.valid) {
+      activeCouponObj = res.coupon;
       activeCoupon = res.coupon.code;
       discountAmount = res.discount;
       msgEl.hidden = false;
@@ -166,6 +171,7 @@ async function applyCoupon() {
       renderSummary();
     }
   } catch (err) {
+    activeCouponObj = null;
     activeCoupon = null;
     discountAmount = 0;
     msgEl.hidden = false;
