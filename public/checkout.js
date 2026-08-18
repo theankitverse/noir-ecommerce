@@ -97,7 +97,7 @@ function renderSummary() {
   $$(".directUpiAmount").forEach((el) => (el.textContent = totalText));
 
   // Update dynamic UPI QR Code
-  const upiVpa = "noir.atelier@razorpay";
+  const upiVpa = "noirkart889658.rzp@rxairtel";
   const upiUri = `upi://pay?pa=${upiVpa}&pn=NOIR%20Atelier&am=${total}&cu=INR&tn=NOIR%20Order`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiUri)}`;
   const qrImg = $("#upiQrImg");
@@ -409,14 +409,14 @@ $("#tabRazorpayModal")?.addEventListener("click", () => {
 });
 
 $("#copyVpaBtn")?.addEventListener("click", () => {
-  const vpa = $("#upiVpaText")?.textContent || "noir.atelier@razorpay";
+  const vpa = $("#upiVpaText")?.textContent || "noirkart889658.rzp@rxairtel";
   navigator.clipboard.writeText(vpa).then(() => S.showToast("UPI VPA copied to clipboard!")).catch(() => S.showToast("Copied VPA: " + vpa));
 });
 
 $$(".upi-app-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     const total = totals().total;
-    const upiUri = `upi://pay?pa=noir.atelier@razorpay&pn=NOIR%20Atelier&am=${total}&cu=INR&tn=NOIR%20Order`;
+    const upiUri = `upi://pay?pa=noirkart889658.rzp@rxairtel&pn=NOIR%20Atelier&am=${total}&cu=INR&tn=NOIR%20Order`;
     window.location.href = upiUri;
   });
 });
