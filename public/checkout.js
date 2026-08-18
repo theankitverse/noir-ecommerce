@@ -110,6 +110,23 @@ function renderSummary() {
   if ($("#payDirectUpiBtn")) $("#payDirectUpiBtn").disabled = empty;
 }
 
+let pollTimer = null;
+function startOrderPolling(orderId, email) {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const track = await S.api(`/order/track?id=${orderId}&email=${encodeURIComponent(email)}`);
+      if (track && track.status && track.status !== "pending") {
+        clearInterval(pollTimer);
+        S.clearCart();
+        location.href = `/success.html?order=${orderId}`;
+      }
+    } catch {
+      /* continue polling */
+    }
+  }, 3000);
+}
+
 /* ---------------- Direct UPI & QR Handler ---------------- */
 async function placeDirectUpiOrder() {
   if (!enrichedItems().length) return S.showToast("Your bag is empty.");
@@ -133,9 +150,13 @@ async function placeDirectUpiOrder() {
       body: JSON.stringify(payload),
     });
 
+    startOrderPolling(res.orderId, payload.customer.email);
+
     S.showToast("Payment recorded! Redirecting to confirmation…");
     S.clearCart();
-    location.href = `/success.html?order=${res.orderId}`;
+    setTimeout(() => {
+      location.href = `/success.html?order=${res.orderId}`;
+    }, 1000);
   } catch (e) {
     S.showToast(e.message || "Could not confirm UPI order.");
     btn.disabled = false;
@@ -302,6 +323,10 @@ async function placeRazorpayOrder(payload) {
     if (res.gateway !== "razorpay") throw new Error("Payment gateway not available.");
     await loadRazorpayScript();
     btn.textContent = "Opening secure window…";
+
+    if (res.orderId && res.prefill?.email) {
+      startOrderPolling(res.orderId, res.prefill.email);
+    }
 
     const rawPhone = (res.prefill?.contact || "").replace(/\D/g, "");
     const cleanContact = rawPhone.length >= 10 ? rawPhone.slice(-10) : rawPhone;
