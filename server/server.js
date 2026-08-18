@@ -106,6 +106,14 @@ if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
 
 app.use(express.json());
 
+/* Prevent browser and CDN caching of API endpoints so admin edits reflect instantly */
+app.use("/api", (_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
 /* ---------------- Helpers ---------------- */
 function calcShipping(subtotal) {
   return subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
