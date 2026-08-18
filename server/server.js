@@ -54,14 +54,14 @@ const stripe =
     ? new Stripe(process.env.STRIPE_SECRET_KEY.trim())
     : null;
 
+const rzpKeyId = (process.env.RAZORPAY_KEY_ID || "rzp_live_REDACTED").trim();
+const rzpKeySecret = (process.env.RAZORPAY_KEY_SECRET || "REDACTED").trim();
+
 const razorpay =
-  process.env.RAZORPAY_KEY_ID &&
-  process.env.RAZORPAY_KEY_SECRET &&
-  process.env.RAZORPAY_KEY_ID.trim() &&
-  process.env.RAZORPAY_KEY_SECRET.trim()
+  rzpKeyId && rzpKeySecret
     ? new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID.trim(),
-        key_secret: process.env.RAZORPAY_KEY_SECRET.trim(),
+        key_id: rzpKeyId,
+        key_secret: rzpKeySecret,
       })
     : null;
 
@@ -151,7 +151,7 @@ app.get("/api/config", (_req, res) => {
     demo: DEMO,
     currency: CURRENCY,
     symbol: SYMBOL,
-    razorpayKeyId: razorpay ? process.env.RAZORPAY_KEY_ID.trim() : null,
+    razorpayKeyId: razorpay ? rzpKeyId : null,
     stripePublicKey: !razorpay && stripe ? (process.env.STRIPE_PUBLISHABLE_KEY || null) : null,
     freeShipping: FREE_SHIPPING,
     shippingFee: SHIPPING_FEE,
