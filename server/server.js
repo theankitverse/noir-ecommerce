@@ -283,15 +283,15 @@ app.post("/api/checkout", async (req, res) => {
       return res.json({
         gateway: "razorpay",
         orderId: order.id,
-        key: process.env.RAZORPAY_KEY_ID.trim(),
+        key: rzpKeyId,
         amount: rzpOrder.amount,
         currency: CURRENCY,
         order_id: rzpOrder.id,
         prefill: { name: order.address.name, email: order.email, contact: order.address.phone },
       });
     } catch (err) {
-      console.error("[razorpay] order error:", err.message);
-      return res.status(500).json({ error: "Could not start checkout. Please try again." });
+      console.error("[razorpay] order error:", err?.message || err);
+      return res.status(500).json({ error: err?.message || "Could not start checkout. Please try again." });
     }
   }
 
