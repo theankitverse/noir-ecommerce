@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,7 +50,14 @@ export function nextOrderId() {
   return `NOIR-${db.seq.toString().padStart(4, "0")}`;
 }
 
+export function generateOrderAccessToken() {
+  return crypto.randomBytes(24).toString("hex");
+}
+
 export function saveOrder(order) {
+  if (!order.accessToken) {
+    order.accessToken = generateOrderAccessToken();
+  }
   const existingIdx = db.orders.findIndex((o) => o.id === order.id);
   if (existingIdx >= 0) {
     db.orders[existingIdx] = { ...db.orders[existingIdx], ...order };
@@ -66,6 +74,22 @@ export function getOrder(id) {
   return db.orders.find((o) => o.id.toUpperCase() === cleanId) || null;
 }
 
+export function getOrderByToken(id, token) {
+  if (!id || !token) return null;
+  const order = getOrder(id);
+  if (!order || !order.accessToken) return null;
+
+  try {
+    const a = Buffer.from(String(order.accessToken));
+    const b = Buffer.from(String(token));
+    if (a.length !== b.length) return null;
+    if (!crypto.timingSafeEqual(a, b)) return null;
+    return order;
+  } catch {
+    return null;
+  }
+}
+
 export function getOrderBySession(sessionId) {
   if (!sessionId) return null;
   return db.orders.find((o) => o.stripeSessionId === sessionId || o.razorpayOrderId === sessionId) || null;
@@ -76,6 +100,34 @@ export function getOrderByEmailAndId(id, email) {
   const cleanId = id.toString().trim().toUpperCase();
   const cleanEmail = email.toString().trim().toLowerCase();
   return db.orders.find((o) => o.id.toUpperCase() === cleanId && o.email.toLowerCase() === cleanEmail) || null;
+}
+
+export function maskOrderForTracking(order) {
+  if (!order) return null;
+  return {
+    id: order.id,
+    status: order.status,
+    createdAt: order.createdAt,
+    paidAt: order.paidAt,
+    shippedAt: order.shippedAt,
+    carrier: order.carrier || "BlueDart Express",
+    trackingNumber: order.trackingNumber || "",
+    trackingUrl: order.trackingUrl || "",
+    items: (order.items || []).map((i) => ({
+      name: i.name,
+      size: i.size,
+      qty: i.qty,
+      price: i.price,
+    })),
+    total: order.total,
+    currency: order.currency,
+    address: {
+      city: order.address?.city || "",
+      country: order.address?.country || "IN",
+      maskedName: order.address?.name ? order.address.name.slice(0, 1) + "***" : "",
+      name: order.address?.name ? order.address.name.slice(0, 1) + "***" : "",
+    },
+  };
 }
 
 export function markPaid(orderId, paymentRef) {
@@ -147,16 +199,18 @@ export function validateCoupon(code, subtotal = 0) {
 
 export function addCoupon(couponData) {
   const code = (couponData.code || "").trim().toUpperCase();
-  if (!code) return { error: "Coupon code is required." };
+  if (!code || !/^[A-Z0-9_-]{2,30}$/.test(code)) {
+    return { error: "Coupon code must be 2-30 uppercase alphanumeric characters." };
+  }
   db.coupons = db.coupons || DEFAULT_COUPONS;
   const existing = db.coupons.find((c) => c.code === code);
   if (existing) return { error: "Coupon code already exists." };
   const coupon = {
     code,
-    type: couponData.type || "percent",
-    value: Number(couponData.value) || 10,
-    minSpend: Number(couponData.minSpend) || 0,
-    desc: couponData.desc || `${couponData.value}% discount`,
+    type: ["percent", "fixed", "shipping"].includes(couponData.type) ? couponData.type : "percent",
+    value: Math.max(1, Math.min(100000, Number(couponData.value) || 10)),
+    minSpend: Math.max(0, Number(couponData.minSpend) || 0),
+    desc: (couponData.desc || `${couponData.value}% discount`).slice(0, 100).trim(),
   };
   db.coupons.push(coupon);
   persist();
@@ -164,6 +218,7 @@ export function addCoupon(couponData) {
 }
 
 export function deleteCoupon(code) {
+  if (!code) return { error: "Coupon code required." };
   db.coupons = (db.coupons || []).filter((c) => c.code.toUpperCase() !== code.toUpperCase());
   persist();
   return { ok: true };
@@ -181,9 +236,9 @@ export function addProductReview(productId, reviewData) {
   const review = {
     id: Date.now(),
     productId: pId,
-    name: (reviewData.name || "Verified Atelier Guest").trim(),
+    name: (reviewData.name || "Verified Atelier Guest").toString().slice(0, 60).trim(),
     rating,
-    comment: (reviewData.comment || "").trim(),
+    comment: (reviewData.comment || "").toString().slice(0, 500).trim(),
     createdAt: new Date().toISOString(),
     verified: true,
   };
@@ -195,8 +250,9 @@ export function addProductReview(productId, reviewData) {
 
 /* ---------------- Newsletter ---------------- */
 export function addNewsletter(email) {
-  if (db.newsletter.includes(email)) return { already: true };
-  db.newsletter.push(email);
+  const cleanEmail = email.toString().slice(0, 254).toLowerCase().trim();
+  if (db.newsletter.includes(cleanEmail)) return { already: true };
+  db.newsletter.push(cleanEmail);
   persist();
   return { already: false };
 }
@@ -204,4 +260,3 @@ export function addNewsletter(email) {
 export function listNewsletter() {
   return [...db.newsletter];
 }
-

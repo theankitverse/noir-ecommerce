@@ -5,8 +5,9 @@
 const S = window.Store;
 const $ = S.$;
 const $$ = S.$$;
+const esc = S.escapeHtml;
 
-let token = sessionStorage.getItem("noir_admin_token") || "";
+let token = sessionStorage.getItem("noir_admin_session") || "";
 let editingId = null;
 
 const CATS = { tops: "Tops", bottoms: "Bottoms", outerwear: "Outerwear", accessories: "Accessories" };
@@ -28,15 +29,23 @@ async function api(path, opts = {}) {
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) {
     showLogin();
-    throw new Error("Session expired — please sign in again.");
+    throw new Error("Session expired or invalid — please sign in again.");
   }
   if (!res.ok) throw new Error(data.error || "Request failed.");
   return data;
 }
 
 /* ---------------- Auth ---------------- */
-function showLogin() {
-  sessionStorage.removeItem("noir_admin_token");
+async function showLogin() {
+  if (token) {
+    try {
+      await fetch("/api/admin/logout", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch {}
+  }
+  sessionStorage.removeItem("noir_admin_session");
   token = "";
   $("#dashView").hidden = true;
   $("#loginView").style.display = "";
@@ -45,15 +54,19 @@ function showLogin() {
 $("#loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   $("#loginErr").textContent = "";
+  const password = $("#loginPass").value;
   try {
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: $("#loginPass").value }),
+      body: JSON.stringify({ password }),
     });
-    if (!res.ok) throw new Error("Wrong password.");
-    token = $("#loginPass").value;
-    sessionStorage.setItem("noir_admin_token", token);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Authentication failed.");
+    
+    // Store server-issued ephemeral session token only (NEVER the raw password)
+    token = data.token;
+    sessionStorage.setItem("noir_admin_session", token);
     $("#loginView").style.display = "none";
     $("#dashView").hidden = false;
     $("#loginPass").value = "";
@@ -64,7 +77,6 @@ $("#loginForm").addEventListener("submit", async (e) => {
 });
 
 $("#logoutBtn").addEventListener("click", () => {
-  sessionStorage.removeItem("noir_admin_token");
   showLogin();
 });
 
@@ -95,9 +107,9 @@ async function loadProducts() {
       <tbody>
         ${data.map((p) => `
           <tr>
-            <td><img src="${p.img}" alt="" /></td>
-            <td><strong>${p.name}</strong>${p.badge ? `<br/><span class="pill ${p.badge === "new" ? "new" : "paid"}">${p.badge}</span>` : ""}</td>
-            <td>${CATS[p.cat] || p.cat}</td>
+            <td><img src="${esc(p.img)}" alt="" /></td>
+            <td><strong>${esc(p.name)}</strong>${p.badge ? `<br/><span class="pill ${p.badge === "new" ? "new" : "paid"}">${esc(p.badge)}</span>` : ""}</td>
+            <td>${esc(CATS[p.cat] || p.cat)}</td>
             <td>${p.compare ? `<s style="opacity:.5">${S.fmt(p.compare)}</s> ` : ""}${S.fmt(p.price)}</td>
             <td>${p.inStock ? "In stock" : `<span class="stock-out">Out of stock</span>`}</td>
             <td><div class="row-actions">
@@ -198,7 +210,7 @@ $("#productForm").addEventListener("submit", async (e) => {
   }
 });
 
-/* ---------------- Orders ---------------- */
+/* ---------------- Orders (Safe HTML Escaping) ---------------- */
 async function loadOrders() {
   const data = await api("/orders");
   const wrap = $("#orderList");
@@ -212,17 +224,17 @@ async function loadOrders() {
       <tbody>
         ${data.map((o) => `
           <tr>
-            <td><strong>${o.id}</strong><br/><span class="order-items">${new Date(o.createdAt).toLocaleString()}</span></td>
-            <td>${o.address?.name || "—"}<br/><span class="order-items">${o.email}</span><br/><span class="order-items">${o.address?.city || ""}, ${o.address?.country || ""}</span></td>
-            <td><span class="order-items">${o.items.map((i) => `${i.qty}× ${i.name} (${i.size})`).join("<br/>")}</span></td>
+            <td><strong>${esc(o.id)}</strong><br/><span class="order-items">${esc(new Date(o.createdAt).toLocaleString())}</span></td>
+            <td>${esc(o.address?.name || "—")}<br/><span class="order-items">${esc(o.email)}</span><br/><span class="order-items">${esc(o.address?.city || "")}, ${esc(o.address?.country || "")}</span></td>
+            <td><span class="order-items">${(o.items || []).map((i) => `${Number(i.qty) || 1}× ${esc(i.name)} (${esc(i.size)})`).join("<br/>")}</span></td>
             <td class="order-total">${S.fmt(o.total)}</td>
             <td>
               <div style="display:grid;gap:0.4rem">
-                <select class="status-select" data-order="${o.id}">
+                <select class="status-select" data-order="${esc(o.id)}">
                   ${["pending","paid","shipped","delivered","cancelled","refunded"].map((s) => `<option value="${s}" ${s === o.status ? "selected" : ""}>${s}</option>`).join("")}
                 </select>
-                <button class="mini-btn" data-ship="${o.id}">Update Tracking</button>
-                ${o.trackingNumber ? `<span style="font-size:0.7rem;color:var(--ink-soft)">${o.carrier || 'BlueDart'}: ${o.trackingNumber}</span>` : ""}
+                <button class="mini-btn" data-ship="${esc(o.id)}">Update Tracking</button>
+                ${o.trackingNumber ? `<span style="font-size:0.7rem;color:var(--ink-soft)">${esc(o.carrier || 'BlueDart')}: ${esc(o.trackingNumber)}</span>` : ""}
               </div>
             </td>
           </tr>`).join("")}
@@ -231,7 +243,7 @@ async function loadOrders() {
   wrap.querySelectorAll(".status-select").forEach((sel) =>
     sel.addEventListener("change", async () => {
       try {
-        const updated = await api(`/orders/${sel.dataset.order}`, {
+        const updated = await api(`/orders/${encodeURIComponent(sel.dataset.order)}`, {
           method: "PATCH",
           body: JSON.stringify({ status: sel.value }),
         });
@@ -250,7 +262,7 @@ async function loadOrders() {
       const trackingNumber = prompt("Tracking Number / AWB:");
       if (!trackingNumber) return;
       try {
-        await api(`/orders/${orderId}/ship`, {
+        await api(`/orders/${encodeURIComponent(orderId)}/ship`, {
           method: "POST",
           body: JSON.stringify({ carrier, trackingNumber, trackingUrl: `https://www.bluedart.com/tracking` }),
         });
@@ -277,12 +289,12 @@ async function loadCoupons() {
       <tbody>
         ${data.map((c) => `
           <tr>
-            <td><strong>${c.code}</strong></td>
-            <td>${c.type}</td>
-            <td>${c.type === "percent" ? `${c.value}% OFF` : c.type === "fixed" ? S.fmt(c.value) : "Free Shipping"}</td>
+            <td><strong>${esc(c.code)}</strong></td>
+            <td>${esc(c.type)}</td>
+            <td>${c.type === "percent" ? `${esc(c.value)}% OFF` : c.type === "fixed" ? S.fmt(c.value) : "Free Shipping"}</td>
             <td>${c.minSpend ? S.fmt(c.minSpend) : "No min"}</td>
-            <td>${c.desc || "—"}</td>
-            <td><button class="mini-btn danger" data-del-coupon="${c.code}">Delete</button></td>
+            <td>${esc(c.desc || "—")}</td>
+            <td><button class="mini-btn danger" data-del-coupon="${esc(c.code)}">Delete</button></td>
           </tr>`).join("")}
       </tbody>
     </table>`;
@@ -290,7 +302,7 @@ async function loadCoupons() {
     btn.addEventListener("click", async () => {
       if (!confirm(`Delete coupon code ${btn.dataset.delCoupon}?`)) return;
       try {
-        await api(`/coupons/${btn.dataset.delCoupon}`, { method: "DELETE" });
+        await api(`/coupons/${encodeURIComponent(btn.dataset.delCoupon)}`, { method: "DELETE" });
         toast("Coupon deleted.");
         loadCoupons();
       } catch (err) {
@@ -328,12 +340,28 @@ async function loadNewsletter() {
   wrap.innerHTML = `
     <table>
       <thead><tr><th>#</th><th>Email</th></tr></thead>
-      <tbody>${data.map((em, i) => `<tr><td>${i + 1}</td><td>${em}</td></tr>`).join("")}</tbody>
+      <tbody>${data.map((em, i) => `<tr><td>${i + 1}</td><td>${esc(em)}</td></tr>`).join("")}</tbody>
     </table>`;
 }
 
-$("#exportCsvBtn")?.addEventListener("click", () => {
-  window.open(`/api/admin/newsletter/export?token=${encodeURIComponent(token)}`, "_blank");
+$("#exportCsvBtn")?.addEventListener("click", async () => {
+  try {
+    const res = await fetch("/api/admin/newsletter/export", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Could not export CSV.");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "noir-subscribers.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    toast(e.message, true);
+  }
 });
 
 /* ---------------- Boot ---------------- */

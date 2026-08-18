@@ -5,6 +5,7 @@
 const S = window.Store;
 const $ = S.$;
 const $$ = S.$$;
+const esc = S.escapeHtml;
 
 let config = { gateway: "demo", demo: true, freeShipping: 10200, shippingFee: 680 };
 let products = [];
@@ -65,12 +66,12 @@ function renderSummary() {
         .map(
           (i) => `
         <div class="co-summary__item">
-          <img src="${i.img}" alt="${i.name}" />
+          <img src="${esc(i.img)}" alt="${esc(i.name)}" />
           <div>
-            <p class="co-summary__item-name">${i.name}</p>
-            <p class="co-summary__item-meta">${i.cat} · Size ${i.size} · Qty ${i.qty}</p>
+            <p class="co-summary__item-name">${esc(i.name)}</p>
+            <p class="co-summary__item-meta">${esc(i.cat)} · Size ${esc(i.size)} · Qty ${Number(i.qty) || 1}</p>
           </div>
-          <span class="co-summary__item-price">${S.fmt(i.price * i.qty)}</span>
+          <span class="co-summary__item-price">${S.fmt((i.price || 0) * (i.qty || 1))}</span>
         </div>`
         )
         .join("")
@@ -509,16 +510,16 @@ function renderDrawer() {
     .map(
       (i, idx) => `
       <div class="drawer__item">
-        <img src="${i.img}" alt="${i.name}" />
+        <img src="${esc(i.img)}" alt="${esc(i.name)}" />
         <div>
-          <p class="drawer__item-name">${i.name}</p>
-          <p class="drawer__item-meta">Size ${i.size}</p>
+          <p class="drawer__item-name">${esc(i.name)}</p>
+          <p class="drawer__item-meta">Size ${esc(i.size)}</p>
           <div class="drawer__qty">
-            <button data-qmin="${idx}">−</button><span>${i.qty}</span><button data-qplus="${idx}">+</button>
+            <button data-qmin="${idx}">−</button><span>${Number(i.qty) || 1}</span><button data-qplus="${idx}">+</button>
           </div>
         </div>
         <div class="drawer__item-side">
-          <span class="drawer__item-price">${S.fmt(i.price * i.qty)}</span>
+          <span class="drawer__item-price">${S.fmt((i.price || 0) * (i.qty || 1))}</span>
           <button class="drawer__remove" data-remove="${idx}">Remove</button>
         </div>
       </div>`

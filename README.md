@@ -11,7 +11,7 @@ npm run dev        # starts http://localhost:4000 (auto-restarts on changes)
 
 Open `http://localhost:4000` — the store works immediately in **demo mode** (checkout is simulated and orders are marked paid).
 
-Admin panel: `http://localhost:4000/admin.html` (default password `noir-admin`).
+Admin panel: `http://localhost:4000/admin.html` (set `ADMIN_PASSWORD` in `.env`).
 
 ## Turning on real payments (Razorpay — India)
 
@@ -119,6 +119,6 @@ Notes:
 
 ## Security notes
 
-- Set `ADMIN_PASSWORD` in `.env` before deploying anywhere public (default is `noir-admin`).
-- Never commit your `.env` — it's git-ignored.
-- Server-side, prices are recomputed from the catalog — clients can't underpay.
+- Set `ADMIN_PASSWORD` in `.env` before deploying anywhere (must be strong).
+- Never commit your `.env` — it is git-ignored.
+- Server-side, prices and totals are recomputed from catalog data — clients cannot tamper with prices.

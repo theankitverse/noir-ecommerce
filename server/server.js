@@ -7,11 +7,13 @@
      POST /api/checkout
      POST /api/payment/verify       (Razorpay signature verification)
      GET  /api/order/session/:sid
-     GET  /api/order/:id
+     GET  /api/order/:id            (Requires order access token or admin auth)
+     GET  /api/order/track          (Requires order id + customer email)
      POST /api/newsletter
      POST /api/admin/auth
-     ...  /api/admin/*      (product & order management)
+     ...  /api/admin/*              (product & order management)
      POST /api/webhooks/stripe
+     POST /api/webhooks/razorpay
    ============================================================ */
 
 import "dotenv/config";
@@ -27,17 +29,20 @@ import {
 } from "./products-store.js";
 import {
   nextOrderId,
+  generateOrderAccessToken,
   saveOrder,
   getOrder,
+  getOrderByToken,
   getOrderBySession,
   getOrderByEmailAndId,
+  maskOrderForTracking,
   markPaid,
   addNewsletter,
   validateCoupon,
   getProductReviews,
   addProductReview,
 } from "./db.js";
-import adminRouter from "./admin.js";
+import adminRouter, { isValidAdminSession } from "./admin.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -46,16 +51,15 @@ const PORT = process.env.PORT || 4000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const CURRENCY = "INR";
 const SYMBOL = "₹";
-const FREE_SHIPPING = 10200; // in ₹ (was $120 @ ₹85)
-const SHIPPING_FEE = 680;    // in ₹ (was $8 @ ₹85)
+const FREE_SHIPPING = 10200; // in ₹
+const SHIPPING_FEE = 680;    // in ₹
 
-const stripe =
-  process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim()
-    ? new Stripe(process.env.STRIPE_SECRET_KEY.trim())
-    : null;
+/* Initialize Payment Providers Strictly from Environment Variables */
+const stripeKey = (process.env.STRIPE_SECRET_KEY || "").trim();
+const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
-const rzpKeyId = (process.env.RAZORPAY_KEY_ID || "rzp_live_REDACTED").trim();
-const rzpKeySecret = (process.env.RAZORPAY_KEY_SECRET || "REDACTED").trim();
+const rzpKeyId = (process.env.RAZORPAY_KEY_ID || "").trim();
+const rzpKeySecret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
 
 const razorpay =
   rzpKeyId && rzpKeySecret
@@ -69,9 +73,22 @@ const razorpay =
 const GATEWAY = razorpay ? "razorpay" : stripe ? "stripe" : "demo";
 const DEMO = GATEWAY === "demo";
 
-if (!process.env.ADMIN_PASSWORD) {
-  console.warn("  ⚠️  ADMIN_PASSWORD not set — admin panel uses default password \"noir-admin\". Set ADMIN_PASSWORD in .env!");
+if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD.trim().length === 0) {
+  console.warn("  ⚠️  ADMIN_PASSWORD is not set in .env — admin panel access is disabled until configured.");
 }
+
+/* ---------------- Production Security Headers ---------------- */
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; frame-src https://api.razorpay.com https://checkout.razorpay.com https://js.stripe.com https://hooks.stripe.com; connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://api.qrserver.com;"
+  );
+  next();
+});
 
 /* ---------------- Webhook (must parse raw body BEFORE express.json) ---------------- */
 if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
@@ -104,9 +121,10 @@ if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
   );
 }
 
-app.use(express.json());
+/* Strict body size limit */
+app.use(express.json({ limit: "100kb" }));
 
-/* Prevent browser and CDN caching of API endpoints so admin edits reflect instantly */
+/* Prevent browser and CDN caching of API endpoints */
 app.use("/api", (_req, res, next) => {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   res.setHeader("Pragma", "no-cache");
@@ -114,9 +132,62 @@ app.use("/api", (_req, res, next) => {
   next();
 });
 
+/* ---------------- Rate Limiter Utility ---------------- */
+function createRateLimiter({ windowMs, max, message }) {
+  const hits = new Map();
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, data] of hits.entries()) {
+      if (now - data.start > windowMs) hits.delete(ip);
+    }
+  }, Math.min(windowMs, 60000));
+
+  return (req, res, next) => {
+    const ip =
+      req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      "unknown";
+    const now = Date.now();
+    const entry = hits.get(ip) || { count: 0, start: now };
+    if (now - entry.start > windowMs) {
+      entry.count = 0;
+      entry.start = now;
+    }
+    entry.count += 1;
+    hits.set(ip, entry);
+    if (entry.count > max) {
+      return res.status(429).json({ error: message || "Too many requests. Please slow down." });
+    }
+    next();
+  };
+}
+
+const checkoutLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: "Too many checkout requests. Please try again in 15 minutes.",
+});
+
+const reviewLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many review submissions. Please try again later.",
+});
+
+const newsletterLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: "Too many newsletter requests. Please try again later.",
+});
+
 /* ---------------- Helpers ---------------- */
 function calcShipping(subtotal, couponVal = null) {
-  if (couponVal?.coupon && (couponVal.coupon.type === "shipping" || couponVal.coupon.type === "freeship" || ["FREESHIP", "ZEROSHIP", "TESTSHIP"].includes(couponVal.coupon.code))) {
+  if (
+    couponVal?.coupon &&
+    (couponVal.coupon.type === "shipping" ||
+      couponVal.coupon.type === "freeship" ||
+      ["FREESHIP", "ZEROSHIP", "TESTSHIP"].includes(couponVal.coupon.code))
+  ) {
     return 0;
   }
   return subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
@@ -163,8 +234,13 @@ app.get("/api/products", (req, res) => {
   let list = listProducts().map(publicProduct);
 
   const { cat, q, sort } = req.query;
-  if (cat && cat !== "all") list = list.filter((p) => p.cat === cat);
-  if (q) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
+  if (cat && typeof cat === "string" && cat !== "all") {
+    list = list.filter((p) => p.cat === cat);
+  }
+  if (q && typeof q === "string") {
+    const cleanQ = q.toLowerCase().slice(0, 50);
+    list = list.filter((p) => p.name.toLowerCase().includes(cleanQ));
+  }
 
   switch (sort) {
     case "price-asc":
@@ -190,39 +266,56 @@ app.get("/api/products/:id", (req, res) => {
 });
 
 /* ---------------- Checkout ---------------- */
-app.post("/api/checkout", async (req, res) => {
+app.post("/api/checkout", checkoutLimiter, async (req, res) => {
   const { items, customer, address, couponCode } = req.body || {};
 
-  if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Your bag is empty." });
-  }
-  if (!customer?.email || !/^\S+@\S+\.\S+$/.test(customer.email)) {
-    return res.status(400).json({ error: "A valid email is required." });
-  }
-  if (!address?.name || !address?.line1 || !address?.city || !address?.zip) {
-    return res.status(400).json({ error: "Complete shipping details are required." });
+  if (!Array.isArray(items) || items.length === 0 || items.length > 50) {
+    return res.status(400).json({ error: "Your bag is empty or contains too many items." });
   }
 
-  /* Recompute prices server-side — never trust the client. */
+  const email = (customer?.email || "").toString().trim().toLowerCase();
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: "A valid email address is required." });
+  }
+
+  const addrName = (address?.name || "").toString().trim().slice(0, 100);
+  const addrLine1 = (address?.line1 || "").toString().trim().slice(0, 150);
+  const addrCity = (address?.city || "").toString().trim().slice(0, 100);
+  const addrZip = (address?.zip || "").toString().trim().toUpperCase().slice(0, 20);
+  const addrPhone = (address?.phone || "").toString().trim().slice(0, 30);
+  const addrCountry = (address?.country || "IN").toString().trim().toUpperCase().slice(0, 5);
+  const addrNotes = (address?.notes || "").toString().trim().slice(0, 300);
+
+  if (!addrName || !addrLine1 || !addrCity || !addrZip) {
+    return res.status(400).json({ error: "Complete shipping address details are required." });
+  }
+
+  /* Recompute prices server-side from catalog — NEVER trust client-submitted prices */
   const lines = [];
   let subtotal = 0;
+  const ALLOWED_SIZES = ["XS", "S", "M", "L", "XL"];
+
   for (const item of items) {
+    if (!item || typeof item !== "object") {
+      return res.status(400).json({ error: "Invalid item payload." });
+    }
     const p = getProduct(item.id);
     if (!p) return res.status(400).json({ error: "Unknown product in bag." });
     if (p.inStock === false) {
       return res.status(400).json({ error: `${p.name} is out of stock.` });
     }
-    const qty = Math.max(1, Math.min(10, Math.round(item.qty || 1)));
-    const price = p.price;
-    lines.push({ id: p.id, name: p.name, img: p.img, size: item.size || "M", qty, price });
+    const qty = Math.max(1, Math.min(10, Math.round(Number(item.qty) || 1)));
+    const size = ALLOWED_SIZES.includes(item.size) ? item.size : "M";
+    const price = Number(p.price);
+    lines.push({ id: p.id, name: p.name, img: p.img, size, qty, price });
     subtotal += price * qty;
   }
 
   let discount = 0;
   let appliedCoupon = null;
   let couponVal = null;
-  if (couponCode) {
-    couponVal = validateCoupon(couponCode, subtotal);
+  if (couponCode && typeof couponCode === "string" && /^[A-Z0-9_-]{2,30}$/i.test(couponCode.trim())) {
+    couponVal = validateCoupon(couponCode.trim(), subtotal);
     if (couponVal.valid) {
       discount = couponVal.discount;
       appliedCoupon = couponVal.coupon.code;
@@ -235,7 +328,8 @@ app.post("/api/checkout", async (req, res) => {
 
   const order = {
     id: nextOrderId(),
-    email: customer.email.trim().toLowerCase(),
+    accessToken: generateOrderAccessToken(),
+    email,
     items: lines,
     subtotal,
     discount,
@@ -244,13 +338,13 @@ app.post("/api/checkout", async (req, res) => {
     total,
     currency: CURRENCY,
     address: {
-      name: address.name.trim(),
-      line1: address.line1.trim(),
-      phone: (address.phone || "").trim(),
-      city: address.city.trim(),
-      zip: address.zip.trim().toUpperCase(),
-      country: (address.country || "IN").trim().toUpperCase(),
-      notes: (address.notes || "").trim(),
+      name: addrName,
+      line1: addrLine1,
+      phone: addrPhone,
+      city: addrCity,
+      zip: addrZip,
+      country: addrCountry,
+      notes: addrNotes,
     },
     status: "pending",
     paymentRef: null,
@@ -258,19 +352,25 @@ app.post("/api/checkout", async (req, res) => {
   };
 
   saveOrder(order);
-  console.log(`[order] ${order.id} created (${GATEWAY} mode) — ${lines.length} line(s), ${SYMBOL}${total}`);
+  console.log(`[order] ${order.id} created (${GATEWAY} mode) — ${lines.length} item(s), ${SYMBOL}${total}`);
 
   /* --- Demo mode: simulate a completed payment --- */
   if (DEMO) {
     markPaid(order.id, null);
-    return res.json({ gateway: "demo", demo: true, orderId: order.id, url: `/success.html?order=${order.id}` });
+    return res.json({
+      gateway: "demo",
+      demo: true,
+      orderId: order.id,
+      token: order.accessToken,
+      url: `/success.html?order=${order.id}&token=${order.accessToken}`,
+    });
   }
 
-  /* --- Razorpay mode: create an order and open their hosted checkout --- */
+  /* --- Razorpay mode --- */
   if (razorpay) {
     try {
       const rzpOrder = await razorpay.orders.create({
-        amount: Math.round(total * 100), // in paise
+        amount: Math.round(total * 100), // paise
         currency: CURRENCY,
         receipt: order.id,
         notes: { orderId: order.id },
@@ -283,6 +383,7 @@ app.post("/api/checkout", async (req, res) => {
       return res.json({
         gateway: "razorpay",
         orderId: order.id,
+        token: order.accessToken,
         key: rzpKeyId,
         amount: rzpOrder.amount,
         currency: CURRENCY,
@@ -291,11 +392,11 @@ app.post("/api/checkout", async (req, res) => {
       });
     } catch (err) {
       console.error("[razorpay] order error:", err?.message || err);
-      return res.status(500).json({ error: err?.message || "Could not start checkout. Please try again." });
+      return res.status(500).json({ error: "Could not initialize checkout. Please try again." });
     }
   }
 
-  /* --- Stripe mode: create a hosted Checkout Session (fallback) --- */
+  /* --- Stripe mode --- */
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -327,7 +428,7 @@ app.post("/api/checkout", async (req, res) => {
         },
       ],
       metadata: { orderId: order.id },
-      success_url: `${BASE_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${BASE_URL}/success.html?session_id={CHECKOUT_SESSION_ID}&order=${order.id}&token=${order.accessToken}`,
       cancel_url: `${BASE_URL}/checkout.html?cancelled=1`,
     });
 
@@ -335,7 +436,13 @@ app.post("/api/checkout", async (req, res) => {
     order.stripeSessionId = session.id;
     saveOrder(order);
 
-    res.json({ gateway: "stripe", demo: false, orderId: order.id, url: session.url });
+    res.json({
+      gateway: "stripe",
+      demo: false,
+      orderId: order.id,
+      token: order.accessToken,
+      url: session.url,
+    });
   } catch (err) {
     console.error("[stripe] checkout error:", err.message);
     res.status(500).json({ error: "Could not start checkout. Please try again." });
@@ -351,24 +458,41 @@ app.post("/api/payment/verify", (req, res) => {
 
   const order = getOrder(orderId);
   if (!order) return res.status(404).json({ error: "Order not found." });
+
   if (order.status === "paid") {
-    return res.json({ ok: true, already: true, url: `/success.html?order=${order.id}` });
+    return res.json({
+      ok: true,
+      already: true,
+      orderId: order.id,
+      token: order.accessToken,
+      url: `/success.html?order=${order.id}&token=${order.accessToken}`,
+    });
   }
 
   try {
-    const secret = process.env.RAZORPAY_KEY_SECRET ? process.env.RAZORPAY_KEY_SECRET.trim() : "";
+    const secret = (process.env.RAZORPAY_KEY_SECRET || "").trim();
+    if (!secret) {
+      return res.status(500).json({ error: "Payment verification unavailable." });
+    }
     const generatedSignature = crypto
       .createHmac("sha256", secret)
       .update(`${razorpayOrderId}|${paymentId}`)
       .digest("hex");
 
-    if (generatedSignature !== signature) {
+    const a = Buffer.from(String(generatedSignature));
+    const b = Buffer.from(String(signature));
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
       throw new Error("Invalid signature");
     }
 
     const paid = markPaid(order.id, paymentId);
     console.log(`[razorpay] order ${order.id} paid (${paymentId})`);
-    return res.json({ ok: true, orderId: paid.id, url: `/success.html?order=${paid.id}` });
+    return res.json({
+      ok: true,
+      orderId: paid.id,
+      token: paid.accessToken,
+      url: `/success.html?order=${paid.id}&token=${paid.accessToken}`,
+    });
   } catch (err) {
     console.error("[razorpay] verify error:", err.message);
     return res.status(400).json({ error: "Payment verification failed." });
@@ -377,7 +501,7 @@ app.post("/api/payment/verify", (req, res) => {
 
 /* ---------------- Razorpay Webhook ---------------- */
 app.post("/api/webhooks/razorpay", (req, res) => {
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+  const secret = (process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET || "").trim();
   if (!secret) return res.status(400).json({ error: "Webhook secret not configured" });
 
   const signature = req.headers["x-razorpay-signature"];
@@ -385,10 +509,10 @@ app.post("/api/webhooks/razorpay", (req, res) => {
 
   try {
     const bodyStr = JSON.stringify(req.body);
-    const shasum = crypto.createHmac("sha256", secret.trim());
-    shasum.update(bodyStr);
-    const digest = shasum.digest("hex");
-    if (digest !== signature) {
+    const digest = crypto.createHmac("sha256", secret).update(bodyStr).digest("hex");
+    const a = Buffer.from(String(digest));
+    const b = Buffer.from(String(signature));
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
       return res.status(400).json({ error: "Invalid webhook signature" });
     }
 
@@ -413,24 +537,24 @@ app.post("/api/webhooks/razorpay", (req, res) => {
 /* ---------------- Coupons ---------------- */
 app.post("/api/coupon/validate", (req, res) => {
   const { code, subtotal } = req.body || {};
-  const result = validateCoupon(code, subtotal || 0);
+  const result = validateCoupon(code, Number(subtotal) || 0);
   if (!result.valid) {
     return res.status(400).json({ error: result.error });
   }
   res.json(result);
 });
 
-/* ---------------- Order Tracking ---------------- */
+/* ---------------- Order Tracking (Requires Order ID + Customer Email) ---------------- */
 app.get("/api/order/track", (req, res) => {
   const { id, email } = req.query;
   if (!id || !email) {
-    return res.status(400).json({ error: "Order ID and Email are required." });
+    return res.status(400).json({ error: "Order ID and Customer Email are both required." });
   }
-  const order = getOrderByEmailAndId(id, email);
+  const order = getOrderByEmailAndId(String(id), String(email));
   if (!order) {
     return res.status(404).json({ error: "No matching order found. Please verify your Order ID and Email." });
   }
-  res.json(order);
+  res.json(maskOrderForTracking(order));
 });
 
 /* ---------------- Product Reviews ---------------- */
@@ -438,12 +562,14 @@ app.get("/api/products/:id/reviews", (req, res) => {
   res.json(getProductReviews(req.params.id));
 });
 
-app.post("/api/products/:id/reviews", (req, res) => {
+app.post("/api/products/:id/reviews", reviewLimiter, (req, res) => {
+  const p = getProduct(req.params.id);
+  if (!p) return res.status(404).json({ error: "Product not found." });
   const review = addProductReview(req.params.id, req.body || {});
   res.json({ ok: true, review });
 });
 
-/* ---------------- Orders ---------------- */
+/* ---------------- Orders (Protected via Access Token or Admin Session) ---------------- */
 app.get("/api/order/session/:sid", async (req, res) => {
   const order = getOrderBySession(req.params.sid);
   if (!order) return res.status(404).json({ error: "Order not found" });
@@ -464,15 +590,35 @@ app.get("/api/order/session/:sid", async (req, res) => {
 });
 
 app.get("/api/order/:id", (req, res) => {
-  const order = getOrder(req.params.id);
-  if (!order) return res.status(404).json({ error: "Order not found" });
+  const orderId = req.params.id;
+  const token = req.query.token;
+  const authHeader = req.headers.authorization || "";
+  const adminToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+
+  // Allow if requester has valid admin session
+  if (adminToken && isValidAdminSession(adminToken)) {
+    const order = getOrder(orderId);
+    if (!order) return res.status(404).json({ error: "Order not found." });
+    return res.json(order);
+  }
+
+  // Otherwise, require valid order access token
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized. Order access token required." });
+  }
+
+  const order = getOrderByToken(orderId, token);
+  if (!order) {
+    return res.status(404).json({ error: "Order not found or access token invalid." });
+  }
+
   res.json(order);
 });
 
 /* ---------------- Newsletter ---------------- */
-app.post("/api/newsletter", (req, res) => {
-  const email = (req.body?.email || "").trim().toLowerCase();
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
+app.post("/api/newsletter", newsletterLimiter, (req, res) => {
+  const email = (req.body?.email || "").toString().trim().toLowerCase();
+  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: "A valid email is required." });
   }
   const result = addNewsletter(email);

@@ -5,6 +5,7 @@
 const S = window.Store;
 const $ = S.$;
 const $$ = S.$$;
+const esc = S.escapeHtml;
 const CATS = {
   tops: "Tops",
   bottoms: "Bottoms",
@@ -29,7 +30,7 @@ async function loadProducts() {
     renderGrid();
     renderWishDrawer();
   } catch (e) {
-    grid.innerHTML = `<p class="grid__empty">${e.message}</p>`;
+    grid.innerHTML = `<p class="grid__empty">${esc(e.message)}</p>`;
   }
 }
 
@@ -54,18 +55,18 @@ function cardHTML(p, i) {
   return `
     <article class="card" data-id="${p.id}" style="animation-delay:${Math.min(i, 8) * 60}ms">
       <div class="card__media">
-        ${p.badge ? `<span class="card__badge ${p.badge === "new" ? "card__badge--new" : ""}">${p.badge}</span>` : ""}
+        ${p.badge ? `<span class="card__badge ${p.badge === "new" ? "card__badge--new" : ""}">${esc(p.badge)}</span>` : ""}
         <button class="card__wish ${wished ? "is-wished" : ""}" data-wish="${p.id}" aria-label="Save to wishlist">
           <svg viewBox="0 0 24 24" fill="${wished ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6"><path d="M12 20.5S4 15 4 9.5A4.5 4.5 0 0 1 12 6a4.5 4.5 0 0 1 8 3.5c0 5.5-8 11-8 11Z"/></svg>
         </button>
-        <img class="img--main" src="${p.img}" alt="${p.name}" loading="lazy" />
-        <img class="img--hover" src="${p.hover}" alt="" loading="lazy" aria-hidden="true" />
+        <img class="img--main" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy" />
+        <img class="img--hover" src="${esc(p.hover)}" alt="" loading="lazy" aria-hidden="true" />
         <button class="card__quick" data-quick="${p.id}">Quick view</button>
       </div>
       <div class="card__info">
         <div>
-          <h3 class="card__name"><a href="product.html?id=${p.id}">${p.name}</a></h3>
-          <p class="card__cat">${CATS[p.cat]} · <span class="stars" style="font-size:.72rem">${stars(p.rating)}</span></p>
+          <h3 class="card__name"><a href="product.html?id=${p.id}">${esc(p.name)}</a></h3>
+          <p class="card__cat">${esc(CATS[p.cat] || p.cat)} · <span class="stars" style="font-size:.72rem">${stars(p.rating)}</span></p>
         </div>
         <p class="card__price">${p.compare ? `<s>${S.fmt(p.compare)}</s>` : ""}${S.fmt(p.price)}</p>
       </div>
@@ -160,7 +161,7 @@ const wishBackdrop = $("#wishBackdrop");
 let locks = 0;
 function lockScroll() {
   locks++;
-  lockScroll();
+  document.body.style.overflow = "hidden";
 }
 function unlockScroll() {
   locks = Math.max(0, locks - 1);
@@ -346,13 +347,13 @@ function openModal(id) {
   const inner = $("#modalInner");
   inner.innerHTML = `
     <div class="modal__media">
-      <img src="${p.img}" alt="${p.name}" />
+      <img src="${esc(p.img)}" alt="${esc(p.name)}" />
     </div>
     <div class="modal__info">
-      <span class="modal__cat">${CATS[p.cat]} / ${p.badge === "new" ? "New in" : "The Rituals Edit"}</span>
-      <h3 class="modal__name"><a href="product.html?id=${p.id}">${p.name}</a></h3>
+      <span class="modal__cat">${esc(CATS[p.cat] || p.cat)} / ${p.badge === "new" ? "New in" : "The Rituals Edit"}</span>
+      <h3 class="modal__name"><a href="product.html?id=${p.id}">${esc(p.name)}</a></h3>
       <p class="modal__price">${p.compare ? `<s>${S.fmt(p.compare)}</s>` : ""}${S.fmt(p.price)}</p>
-      <p class="modal__desc">${p.desc}</p>
+      <p class="modal__desc">${esc(p.desc)}</p>
       <span class="modal__label">Size</span>
       <div class="sizes" id="quickSizes">
         ${SIZES.map((s) => `<button class="size ${s === "M" ? "is-selected" : ""}" data-size="${s}">${s}</button>`).join("")}

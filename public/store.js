@@ -52,6 +52,18 @@ window.Store = (function () {
     document.dispatchEvent(new CustomEvent(name));
   }
 
+  /* HTML Escaping Utility for XSS Prevention */
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#x27;")
+      .replace(/\//g, "&#x2F;");
+  }
+
   /* ----- Cart ----- */
   const getCart = () => cart.map((i) => ({ ...i }));
 
@@ -156,7 +168,7 @@ window.Store = (function () {
   );
 
   return {
-    API, fmt, $, $$,
+    API, fmt, $, $$, escapeHtml,
     config,
     getCart, addToCart, setQty, removeAt, clearCart, cartCount, cartSubtotal,
     getWishlist, isWished, toggleWish, removeWish, wishCount,

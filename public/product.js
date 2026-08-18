@@ -3,6 +3,9 @@
    ========================================================================== */
 
 const S = window.Store;
+const $ = S.$;
+const $$ = S.$$;
+const esc = S.escapeHtml;
 const SIZES = ["XS", "S", "M", "L", "XL"];
 
 let product = null;
@@ -53,7 +56,7 @@ function render() {
   $("#pDesc").textContent = product.desc;
   $("#pDetails").textContent = product.desc;
   $("#pFabric").textContent = product.fabric;
-  $("#pCare").innerHTML = product.care.map((c) => `<li>${c}</li>`).join("");
+  $("#pCare").innerHTML = (product.care || []).map((c) => `<li>${esc(c)}</li>`).join("");
   $("#stickyName").textContent = product.name;
   $("#stickyPrice").textContent = S.fmt(product.price);
 
@@ -376,11 +379,11 @@ function renderReviews(reviews) {
       (r) => `
     <div style="padding:1.4rem 0;border-bottom:1px solid var(--line)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
-        <strong style="font-family:var(--font-display);font-size:1.05rem">${r.name} ${r.verified ? '<span style="font-size:0.68rem;letter-spacing:0.12em;background:var(--paper-2);padding:0.2rem 0.5rem;border-radius:4px;color:var(--ink-soft);font-family:var(--font-body)">VERIFIED BUYER</span>' : ''}</strong>
-        <span style="color:var(--ember)">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+        <strong style="font-family:var(--font-display);font-size:1.05rem">${esc(r.name)} ${r.verified ? '<span style="font-size:0.68rem;letter-spacing:0.12em;background:var(--paper-2);padding:0.2rem 0.5rem;border-radius:4px;color:var(--ink-soft);font-family:var(--font-body)">VERIFIED BUYER</span>' : ''}</strong>
+        <span style="color:var(--ember)">${'★'.repeat(Math.max(1, Math.min(5, Math.round(r.rating || 5))))}${'☆'.repeat(5 - Math.max(1, Math.min(5, Math.round(r.rating || 5))))}</span>
       </div>
-      <p style="color:var(--ink-soft);font-size:0.95rem;line-height:1.6">${r.comment}</p>
-      <span style="font-size:0.7rem;color:var(--ink-soft);opacity:0.7;display:block;margin-top:0.4rem">${new Date(r.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</span>
+      <p style="color:var(--ink-soft);font-size:0.95rem;line-height:1.6">${esc(r.comment)}</p>
+      <span style="font-size:0.7rem;color:var(--ink-soft);opacity:0.7;display:block;margin-top:0.4rem">${esc(new Date(r.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }))}</span>
     </div>`
     )
     .join("");

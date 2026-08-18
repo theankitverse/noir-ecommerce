@@ -1,6 +1,7 @@
 /* Order Tracking Client Logic */
 const S = window.Store;
 const $ = S.$;
+const esc = S.escapeHtml;
 
 async function fetchOrderTrack(id, email) {
   const errEl = $("#trackErr");
@@ -28,7 +29,7 @@ async function fetchOrderTrack(id, email) {
 }
 
 function renderTrackingOrder(order) {
-  $("#resOrderTitle").textContent = `Order #${order.id}`;
+  $("#resOrderTitle").textContent = `Order #${order.id || "—"}`;
   const d = new Date(order.createdAt);
   $("#resOrderDate").textContent = `Placed on ${d.toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}`;
 
@@ -37,7 +38,6 @@ function renderTrackingOrder(order) {
   $("#resBadge").className = `card__badge ${status === "paid" || status === "delivered" ? "card__badge--new" : ""}`;
 
   // Update Timeline steps
-  const steps = ["Placed", "Paid", "Shipped", "Delivered"];
   const isPaid = ["paid", "shipped", "delivered"].includes(status);
   const isShipped = ["shipped", "delivered"].includes(status);
   const isDelivered = status === "delivered";
@@ -48,16 +48,17 @@ function renderTrackingOrder(order) {
   setStepState("#stepDelivered", isDelivered, isDelivered, isDelivered ? "Delivered" : "Pending");
 
   // Carrier info
-  $("#resCarrier").innerHTML = `<strong>Carrier:</strong> ${order.carrier || "BlueDart Express / Express Post"}`;
+  $("#resCarrier").textContent = `Carrier: ${order.carrier || "BlueDart Express"}`;
   if (order.trackingNumber) {
-    $("#trackNumVal").innerHTML = `<a href="${order.trackingUrl || '#'}" target="_blank" style="text-decoration:underline;color:var(--ember)">${order.trackingNumber} ↗</a>`;
+    const safeUrl = order.trackingUrl && /^https?:\/\//i.test(order.trackingUrl) ? order.trackingUrl : "#";
+    $("#trackNumVal").innerHTML = `<a href="${esc(safeUrl)}" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;color:var(--ember)">${esc(order.trackingNumber)} ↗</a>`;
   } else {
     $("#trackNumVal").textContent = "Preparing for dispatch";
   }
 
   // Address
   const addr = order.address || {};
-  $("#addrVal").textContent = `${addr.name || ""}, ${addr.line1 || ""}, ${addr.city || ""} ${addr.zip || ""}, ${addr.country || "IN"}`;
+  $("#addrVal").textContent = `${addr.maskedName || ""}${addr.city ? `, ${addr.city}` : ""} · ${addr.country || "IN"}`;
 
   // Items
   $("#resItemList").innerHTML = (order.items || [])
@@ -65,7 +66,7 @@ function renderTrackingOrder(order) {
       (item) => `
       <div class="order-item-row">
         <div>
-          <strong>${item.name}</strong> <span style="color:var(--ink-soft)">(Size ${item.size || "M"}) × ${item.qty || 1}</span>
+          <strong>${esc(item.name)}</strong> <span style="color:var(--ink-soft)">(Size ${esc(item.size || "M")}) × ${Number(item.qty) || 1}</span>
         </div>
         <div>${S.fmt((item.price || 0) * (item.qty || 1))}</div>
       </div>`
